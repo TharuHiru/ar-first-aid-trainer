@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AR First-Aid Kit Trainer</title>
+
+    <!-- Importing A-Frame -->
+    <script src="https://aframe.io/releases/1.7.0/aframe.min.js"></script>
+
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<script>
+AFRAME.registerComponent('mouse-rotate', {
+    init: function () {
+        this.dragging = false;
+        this.lastX = 0;
+        this.lastY = 0;
+
+        this.el.sceneEl.canvas.addEventListener('mousedown', (e) => {
+            this.dragging = true;
+            this.lastX = e.clientX;
+            this.lastY = e.clientY;
+        });
+
+        window.addEventListener('mouseup', () => {
+            this.dragging = false;
+        });
+
+        window.addEventListener('mousemove', (e) => {
+            if (!this.dragging) return;
+
+            const dx = e.clientX - this.lastX;
+            const dy = e.clientY - this.lastY;
+
+            const rotation = this.el.getAttribute('rotation');
+
+            rotation.y += dx * 0.5;
+            rotation.x += dy * 0.5;
+
+            this.el.setAttribute('rotation', rotation);
+
+            this.lastX = e.clientX;
+            this.lastY = e.clientY;
+        });
+    }
+});
+</script>
+
+<body>
+
+    <!-- The container which holds the AR content -->
+    <a-scene>
+
+        <!-- A sphere with green colour-->
+        <!-- position 0 1 -3 means X = 0 , Y = 1 , Z = -3 | X = left or right, Y = up or down, Z = forward or backward -->
+        <!-- rotation 45 45 -3 means X = 45 , Y = 45 , Z = 0 | X rotation, Y rotation, Z rotation -->
+
+        <!-- <a-box
+            position="0 1 -3"
+            rotation="45 45 0"
+            color="#4CAF50">
+        </a-box> -->
+
+        <!--We are saying load these assests and keep them there can be multiple models loaded -->
+        <a-assets>
+            <!-- The first item the first aid box so we load it and give it a name-->
+            <a-asset-item
+                id="firstAidBox"
+                src="assets/models/improved_by_blender.glb">
+            </a-asset-item>
+        </a-assets>
+
+        <a-entity
+            gltf-model="#firstAidBox"
+            position="0 1 1"
+            scale="1 1 1"
+            mouse-rotate>
+        </a-entity>
+
+        <a-plane
+            position="0 0 -4"
+            rotation="-90 0 0"
+            width="10"
+            height="10"
+            color="#CCCCCC">
+        </a-plane>
+
+        <!--Users view point-->
+        <!-- position of the camera of the user 0 1.2 2 means X = 0 , Y = 1.2 , Z = 2 -->
+        <a-camera
+            position="0 1.2 2">
+        </a-camera>
+
+    </a-scene>
+
+    <script src="app.js"></script>
+
+</body>
+</html>
