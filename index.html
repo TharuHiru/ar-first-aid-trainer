@@ -81,9 +81,29 @@ AFRAME.registerComponent('mouse-rotate', {
                 src="assets/models/band_aid_box.glb">
             </a-asset-item>
 
-             <a-asset-item
+            <a-asset-item
                 id="bandageRoll"
                 src="assets/models/bandage_roll.glb">
+            </a-asset-item>
+
+            <a-asset-item
+                id="painBalm"
+                src="assets/models/pain_balm.glb">
+            </a-asset-item>
+
+            <a-asset-item
+                id="paracetamol"
+                src="assets/models/paracetamol.glb">
+            </a-asset-item>
+
+            <a-asset-item
+                id="sprit"
+                src="assets/models/sprit.glb">
+            </a-asset-item>
+
+            <a-asset-item
+                id="thermometer"
+                src="assets/models/thermometer.glb">
             </a-asset-item>
         </a-assets>
 
@@ -121,6 +141,38 @@ AFRAME.registerComponent('mouse-rotate', {
             rotation="0 45 0"
             position="0.3 -0.09 0"
             scale="0.05 0.05 0.05"
+            mouse-rotate>
+        </a-entity>
+
+        <a-entity
+            gltf-model="#painBalm"
+            rotation="0 45 0"
+            position="0.3 -0.26 0"
+            scale="0.005 0.005 0.005"
+            mouse-rotate>
+        </a-entity>
+
+        <a-entity
+            gltf-model="#paracetamol"
+            rotation="0 -45 0"
+            position="0.1 -0.24 0"
+            scale="0.03 0.03 0.03"
+            mouse-rotate>
+        </a-entity>
+
+        <a-entity
+            gltf-model="#sprit"
+            rotation="0 45 0"
+            position="0.3 0.04 0"
+            scale="0.02 0.02 0.02"
+            mouse-rotate>
+        </a-entity>
+
+        <a-entity
+            gltf-model="#thermometer"
+            position="0.1 0.01 0"
+            rotation="90 0 0"
+            scale="2 2 2"
             mouse-rotate>
         </a-entity>
 
