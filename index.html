@@ -76,6 +76,11 @@ AFRAME.registerComponent('mouse-rotate', {
                 src="assets/models/first_aid_box_0_1.glb">
             </a-asset-item>
 
+            <a-asset-item
+                id="bandAid"
+                src="assets/models/band_aid_box.glb">
+            </a-asset-item>
+
              <a-asset-item
                 id="bandageRoll"
                 src="assets/models/bandage_roll.glb">
@@ -105,8 +110,15 @@ AFRAME.registerComponent('mouse-rotate', {
         </a-entity>
 
         <a-entity
+            gltf-model="#bandAid"
+            position="0.1 -0.13 0"
+            scale="0.008 0.008 0.008"
+            mouse-rotate>
+        </a-entity>
+
+        <a-entity
             gltf-model="#bandageRoll"
-            rotation="0 90 0"
+            rotation="0 45 0"
             position="0.3 -0.09 0"
             scale="0.05 0.05 0.05"
             mouse-rotate>
