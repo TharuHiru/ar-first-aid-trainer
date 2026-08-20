@@ -125,6 +125,56 @@
 
             </a-entity>
 
+            <!-- Podium that appears when training starts -->
+            <a-entity
+                id="podium"
+                position="-0.1 -0.3 0.2"
+                visible="false">
+                
+                <!-- Podium base -->
+                <a-box
+                    id="podiumBase"
+                    width="0.1"
+                    height="0.15"
+                    depth="0.3"
+                    material="color: #4CAF50; metalness: 0.3; roughness: 0.7">
+                </a-box>
+                
+                <!-- Podium top surface (drop zone) -->
+                <a-cylinder
+                    id="podiumTop"
+                    radius="0.15"
+                    height="0.02"
+                    position="0 0.08 0"
+                    material="color: #45a049; emissive: #1a3a1a; metalness: 0.5">
+                </a-cylinder>
+
+                <!-- Instruction tag (appears when item is placed) -->
+                <a-entity
+                    id="instructionTag"
+                    position="0 0.12 0"
+                    visible="false">
+                    
+                    <a-plane
+                        width="0.25"
+                        height="0.1"
+                        material="color: #ffffff; side: double">
+                    </a-plane>
+                    
+                    <a-text
+                        value="Click to apply"
+                        align="center"
+                        anchor="center"
+                        font="https://cdn.aframe.io/fonts/Roboto-msdf.json"
+                        negate="false"
+                        color="#000000"
+                        scale="1 1 1">
+                    </a-text>
+
+                </a-entity>
+
+            </a-entity>
+
             <a-entity
                 gltf-model="#bandageRoll"
                 rotation="0 45 0"
