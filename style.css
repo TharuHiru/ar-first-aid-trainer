@@ -25,6 +25,46 @@ body {
     font-weight: bold;
 }
 
+#startTraining:hover {
+    background: #45a049;
+    cursor: pointer;
+}
+
+/* Container for training mode buttons */
+.button-container {
+    display: none;
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    gap: 20px;
+    flex-direction: column;
+    align-items: center;
+}
+
+.button-container.visible {
+    display: flex;
+}
+
+/* Training mode buttons */
+.training-button {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 10px;
+    background: #4CAF50;
+    color: white;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background 0.3s ease;
+    min-width: 150px;
+}
+
+.training-button:hover {
+    background: #45a049;
+}
+
 #instructionButton {
     display: none;
     position: fixed;

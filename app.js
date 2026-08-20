@@ -3,6 +3,9 @@ const scene = document.querySelector('a-scene');
 const startButton = document.getElementById('startTraining');
 const podium = document.getElementById('podium');
 const instructionButton = document.getElementById('instructionButton');
+const trainingButtonsContainer = document.getElementById('trainingButtonsContainer');
+const viewItemsButton = document.getElementById('viewItemsButton');
+const scenarioButton = document.getElementById('scenarioButton');
 
 // Define instructions for each item
 const itemInstructions = {
@@ -36,6 +39,8 @@ const originalPositions = {
 
 // Track which item is on podium
 window.itemOnPodium = null;
+window.trainingStarted = false;
+window.viewItemsMode = false;
 
 scene.addEventListener('targetFound', function () {
     console.log("Marker detected!");
@@ -46,21 +51,35 @@ scene.addEventListener('targetFound', function () {
 scene.addEventListener('targetLost', function () {
     console.log("Marker lost!");
     startButton.style.display = 'none';
+    trainingButtonsContainer.classList.remove('visible');
 
 });
 
-window.trainingStarted = false;
-
+// Start Training button - shows View Items and Scenario buttons
 startButton.addEventListener('click', function () {
+    console.log("Start Training clicked");
+    startButton.style.display = 'none';
+    trainingButtonsContainer.classList.add('visible');
+});
+
+// View Items button - enables drag and drop with podium only
+viewItemsButton.addEventListener('click', function () {
+    console.log("View Items clicked");
     window.trainingStarted = true;
-    console.log("Training started");
-    startButton.innerText = "Training Started";
-    startButton.disabled = true;
+    window.viewItemsMode = true;
+    trainingButtonsContainer.classList.remove('visible');
     
     // Show the podium
     podium.setAttribute('visible', 'true');
-    console.log("Podium shown");
+    console.log("Podium shown - ready for drag and drop");
+});
 
+// Scenario button - for future scenarios
+scenarioButton.addEventListener('click', function () {
+    console.log("Scenario clicked");
+    trainingButtonsContainer.classList.remove('visible');
+    // TODO: Implement scenario logic
+    alert("Scenario mode coming soon!");
 });
 
 // Register draggable component - adapted from working fire extinguisher code
