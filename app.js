@@ -3,6 +3,40 @@ const scene = document.querySelector('a-scene');
 const startButton = document.getElementById('startTraining');
 const podium = document.getElementById('podium');
 const instructionTag = document.getElementById('instructionTag');
+const instructionText = document.getElementById('instructionText');
+
+// Define instructions for each item
+const itemInstructions = {
+    bandAid: "Apply Band-Aid to wound",
+    bandageRoll: "Wrap bandage roll around injury",
+    painBalm: "Apply pain balm gently",
+    paracetamol: "Take paracetamol tablet",
+    sprit: "Clean wound with spirit",
+    thermometer: "Check temperature"
+};
+
+// Define custom podium positions for each item 
+const itemPodiumPositions = {
+    bandAid: { x: -0.1, y: -2, z: 0 },
+    bandageRoll: { x: 0, y: 0.13, z: 0 },
+    painBalm: { x: 0.02, y: 0.09, z: 0 },
+    paracetamol: { x: 0.01, y: 0.12, z: 0 },
+    sprit: { x: 0, y: 0.14, z: 0 },
+    thermometer: { x: 0, y: 0.1, z: 0 }
+};
+
+// Track original positions
+const originalPositions = {
+    bandAid: { x: 0.1, y: -0.13, z: 0 },
+    bandageRoll: { x: 0.3, y: -0.09, z: 0 },
+    painBalm: { x: 0.3, y: -0.26, z: 0 },
+    paracetamol: { x: 0.1, y: -0.24, z: 0 },
+    sprit: { x: 0.3, y: 0.04, z: 0 },
+    thermometer: { x: 0.1, y: 0.01, z: 0 }
+};
+
+// Track which item is on podium
+window.itemOnPodium = null;
 
 scene.addEventListener('targetFound', function () {
     console.log("Marker detected!");
@@ -16,10 +50,7 @@ scene.addEventListener('targetLost', function () {
 
 });
 
-
 window.trainingStarted = false;
-window.bandAidOnPodium = false;
-window.bandAidOriginalPosition = { x: 0.1, y: -0.13, z: 0 };
 
 startButton.addEventListener('click', function () {
     window.trainingStarted = true;
@@ -36,7 +67,8 @@ startButton.addEventListener('click', function () {
 // Register draggable component - adapted from working fire extinguisher code
 AFRAME.registerComponent('draggable-object', {
     schema: {
-        target: { type: "selector" }
+        target: { type: "selector" },
+        itemName: { type: "string" }
     },
     
     init() {
@@ -48,6 +80,7 @@ AFRAME.registerComponent('draggable-object', {
         this.targetPoint = new THREE.Vector3();
         
         this.target = this.data.target;
+        this.itemName = this.data.itemName;
         this.canvas = this.el.sceneEl.canvas;
         
         if (!this.target || !this.canvas) {
@@ -87,18 +120,16 @@ AFRAME.registerComponent('draggable-object', {
     },
     
     checkPodiumCollision() {
-        const bandAidPos = this.el.getAttribute('position');
+        const itemPos = this.el.getAttribute('position');
         const podiumPos = podium.getAttribute('position');
         
-        console.log("Band aid pos:", bandAidPos, "Podium pos:", podiumPos);
-        
-        // Simple distance check (band aid is within 0.2 units of podium center)
+        // Simple distance check
         const distance = Math.sqrt(
-            Math.pow(bandAidPos.x - podiumPos.x, 2) +
-            Math.pow(bandAidPos.y - (podiumPos.y + 0.08), 2)
+            Math.pow(itemPos.x - podiumPos.x, 2) +
+            Math.pow(itemPos.y - (podiumPos.y + 0.08), 2)
         );
         
-        console.log("Distance to podium:", distance);
+        console.log(`${this.itemName} - Distance to podium:`, distance.toFixed(3));
         
         return distance < 0.25;
     },
@@ -118,7 +149,7 @@ AFRAME.registerComponent('draggable-object', {
         
         this.isDragging = true;
         this.canvas.setPointerCapture(event.pointerId);
-        console.log("Band aid dragging started!");
+        console.log(`${this.itemName} dragging started!`);
         event.preventDefault();
     },
     
@@ -153,34 +184,43 @@ AFRAME.registerComponent('draggable-object', {
         
         // Check if dropped on podium
         if (this.checkPodiumCollision()) {
-            console.log("Band aid placed on podium!");
-            window.bandAidOnPodium = true;
+            console.log(`${this.itemName} placed on podium!`);
+            window.itemOnPodium = this.itemName;
             
-            // Move band aid to podium center - keep Z position same
+            // Get podium position and apply item-specific offset
             const podiumPos = podium.getAttribute('position');
+            const itemOffset = itemPodiumPositions[this.itemName] || { x: 0, y: 0.15, z: 0 };
+            
             const newPos = {
-                x: podiumPos.x,
-                y: podiumPos.y + 0.09,
-                z: podiumPos.z + 0.01 
+                x: podiumPos.x + itemOffset.x,
+                y: podiumPos.y + itemOffset.y,
+                z: podiumPos.z + itemOffset.z
             };
             
-            console.log("Setting position to:", newPos);
+            console.log(`${this.itemName} - Setting position to:`, newPos);
             this.el.setAttribute('position', newPos);
             
-            // Show instruction tag
+            // Show instruction tag with item-specific text
+            const instruction = itemInstructions[this.itemName] || "Apply item";
+            instructionText.setAttribute('value', instruction);
             instructionTag.setAttribute('visible', 'true');
             podium.querySelector('#podiumTop').setAttribute('material', 'emissive: #90EE90');
         } else {
-            console.log("Band aid dropped away from podium");
-            window.bandAidOnPodium = false;
-            instructionTag.setAttribute('visible', 'false');
+            console.log(`${this.itemName} dropped away from podium`);
+            
+            // If this was the item on podium, reset the tag
+            if (window.itemOnPodium === this.itemName) {
+                window.itemOnPodium = null;
+                instructionTag.setAttribute('visible', 'false');
+            }
+            
             podium.querySelector('#podiumTop').setAttribute('material', 'emissive: #1a3a1a');
         }
         
         if (this.canvas.hasPointerCapture(event.pointerId)) {
             this.canvas.releasePointerCapture(event.pointerId);
         }
-        console.log("Band aid dropped!");
+        console.log(`${this.itemName} dropped!`);
     },
     
     remove() {

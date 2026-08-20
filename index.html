@@ -152,23 +152,24 @@
                 <!-- Instruction tag (appears when item is placed) -->
                 <a-entity
                     id="instructionTag"
-                    position="0 0.12 0"
+                    position="0 -0.2 0"
                     visible="false">
                     
                     <a-plane
                         width="0.25"
-                        height="0.1"
+                        height="0.08"
                         material="color: #ffffff; side: double">
                     </a-plane>
                     
                     <a-text
-                        value="Click to apply"
+                        id="instructionText"
+                        value="Apply item"
                         align="center"
                         anchor="center"
                         font="https://cdn.aframe.io/fonts/Roboto-msdf.json"
                         negate="false"
                         color="#000000"
-                        scale="1 1 1">
+                        scale="0.4 0.4 0.4">
                     </a-text>
 
                 </a-entity>
@@ -177,37 +178,47 @@
 
             <a-entity
                 gltf-model="#bandageRoll"
+                id="bandageRollObject"
                 rotation="0 45 0"
                 position="0.3 -0.09 0"
-                scale="0.05 0.05 0.05">
+                scale="0.05 0.05 0.05"
+                draggable-object="target: [mindar-image-target]; itemName: bandageRoll">
             </a-entity>
 
             <a-entity
                 gltf-model="#painBalm"
+                id="painBalmObject"
                 rotation="0 45 0"
                 position="0.3 -0.26 0"
-                scale="0.005 0.005 0.005">
+                scale="0.005 0.005 0.005"
+                draggable-object="target: [mindar-image-target]; itemName: painBalm">
             </a-entity>
 
             <a-entity
                 gltf-model="#paracetamol"
+                id="paracetamolObject"
                 rotation="0 -45 0"
                 position="0.1 -0.24 0"
-                scale="0.03 0.03 0.03">
+                scale="0.03 0.03 0.03"
+                draggable-object="target: [mindar-image-target]; itemName: paracetamol">
             </a-entity>
 
             <a-entity
                 gltf-model="#sprit"
+                id="spritObject"
                 rotation="0 45 0"
                 position="0.3 0.04 0"
-                scale="0.02 0.02 0.02">
+                scale="0.02 0.02 0.02"
+                draggable-object="target: [mindar-image-target]; itemName: sprit">
             </a-entity>
 
             <a-entity
                 gltf-model="#thermometer"
+                id="thermometerObject"
                 position="0.1 0.01 0"
                 rotation="90 0 0"
-                scale="2 2 2">
+                scale="2 2 2"
+                draggable-object="target: [mindar-image-target]; itemName: thermometer">
             </a-entity>
 
         </a-entity>
