@@ -26,6 +26,11 @@
         Start Training
     </button>
 
+    <!-- Instruction button that appears when item is placed -->
+    <button id="instructionButton" >
+        Apply item
+    </button>
+
     <!-- 3D Scene -->
     <a-scene
         mindar-image="imageTargetSrc: ./new_target.mind;"
@@ -148,31 +153,6 @@
                     position="0 0.08 0"
                     material="color: #45a049; emissive: #1a3a1a; metalness: 0.5">
                 </a-cylinder>
-
-                <!-- Instruction tag (appears when item is placed) -->
-                <a-entity
-                    id="instructionTag"
-                    position="0 -0.2 0"
-                    visible="false">
-                    
-                    <a-plane
-                        width="0.25"
-                        height="0.08"
-                        material="color: #ffffff; side: double">
-                    </a-plane>
-                    
-                    <a-text
-                        id="instructionText"
-                        value="Apply item"
-                        align="center"
-                        anchor="center"
-                        font="https://cdn.aframe.io/fonts/Roboto-msdf.json"
-                        negate="false"
-                        color="#000000"
-                        scale="0.4 0.4 0.4">
-                    </a-text>
-
-                </a-entity>
 
             </a-entity>
 

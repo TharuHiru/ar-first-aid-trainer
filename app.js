@@ -2,8 +2,7 @@
 const scene = document.querySelector('a-scene');
 const startButton = document.getElementById('startTraining');
 const podium = document.getElementById('podium');
-const instructionTag = document.getElementById('instructionTag');
-const instructionText = document.getElementById('instructionText');
+const instructionButton = document.getElementById('instructionButton');
 
 // Define instructions for each item
 const itemInstructions = {
@@ -200,18 +199,18 @@ AFRAME.registerComponent('draggable-object', {
             console.log(`${this.itemName} - Setting position to:`, newPos);
             this.el.setAttribute('position', newPos);
             
-            // Show instruction tag with item-specific text
+            // Show instruction button with item-specific text
             const instruction = itemInstructions[this.itemName] || "Apply item";
-            instructionText.setAttribute('value', instruction);
-            instructionTag.setAttribute('visible', 'true');
+            instructionButton.textContent = instruction;
+            instructionButton.style.display = 'block';
             podium.querySelector('#podiumTop').setAttribute('material', 'emissive: #90EE90');
         } else {
             console.log(`${this.itemName} dropped away from podium`);
             
-            // If this was the item on podium, reset the tag
+            // If this was the item on podium, hide the button
             if (window.itemOnPodium === this.itemName) {
                 window.itemOnPodium = null;
-                instructionTag.setAttribute('visible', 'false');
+                instructionButton.style.display = 'none';
             }
             
             podium.querySelector('#podiumTop').setAttribute('material', 'emissive: #1a3a1a');
