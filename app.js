@@ -16,7 +16,7 @@ const itemInstructions = {
 
 // Define custom podium positions for each item 
 const itemPodiumPositions = {
-    bandAid: { x: -0.1, y: -2, z: 0 },
+    bandAid: { x: 0, y: 0.09, z: 0.01 },
     bandageRoll: { x: 0, y: 0.13, z: 0 },
     painBalm: { x: 0.02, y: 0.09, z: 0 },
     paracetamol: { x: 0.01, y: 0.12, z: 0 },
@@ -173,6 +173,16 @@ AFRAME.registerComponent('draggable-object', {
         event.preventDefault();
     },
     
+    snapToExactPosition(itemName, position) {
+        // Snap item to exact position with no variation
+        this.el.setAttribute('position', {
+            x: position.x,
+            y: position.y,
+            z: position.z
+        });
+        console.log(`${itemName} snapped to exact position:`, position);
+    },
+    
     onPointerUp(event) {
         if (!this.isDragging) {
             return;
@@ -186,7 +196,7 @@ AFRAME.registerComponent('draggable-object', {
             console.log(`${this.itemName} placed on podium!`);
             window.itemOnPodium = this.itemName;
             
-            // Get podium position and apply item-specific offset
+            // Get podium position and apply item-specific offset - PRESERVE EXACT POSITIONS
             const podiumPos = podium.getAttribute('position');
             const itemOffset = itemPodiumPositions[this.itemName] || { x: 0, y: 0.15, z: 0 };
             
@@ -196,8 +206,9 @@ AFRAME.registerComponent('draggable-object', {
                 z: podiumPos.z + itemOffset.z
             };
             
-            console.log(`${this.itemName} - Setting position to:`, newPos);
-            this.el.setAttribute('position', newPos);
+            console.log(`${this.itemName} - Setting position to EXACT:`, newPos);
+            // Use snapToExactPosition to ensure NO DRIFT
+            this.snapToExactPosition(this.itemName, newPos);
             
             // Show instruction button with item-specific text
             const instruction = itemInstructions[this.itemName] || "Apply item";
@@ -206,6 +217,13 @@ AFRAME.registerComponent('draggable-object', {
             podium.querySelector('#podiumTop').setAttribute('material', 'emissive: #90EE90');
         } else {
             console.log(`${this.itemName} dropped away from podium`);
+            
+            // Return item to original position
+            const originalPos = originalPositions[this.itemName];
+            if (originalPos) {
+                this.el.setAttribute('position', originalPos);
+                console.log(`${this.itemName} returned to original position:`, originalPos);
+            }
             
             // If this was the item on podium, hide the button
             if (window.itemOnPodium === this.itemName) {
