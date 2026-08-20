@@ -19,45 +19,14 @@
 </head>
 
 <!-- Rotate the 3D model using mouse drag events. -->
-<script>
-AFRAME.registerComponent('mouse-rotate', {
-    init: function () {
-        this.dragging = false;
-        this.lastX = 0;
-        this.lastY = 0;
-
-        this.el.sceneEl.canvas.addEventListener('mousedown', (e) => {
-            this.dragging = true;
-            this.lastX = e.clientX;
-            this.lastY = e.clientY;
-        });
-
-        window.addEventListener('mouseup', () => {
-            this.dragging = false;
-        });
-
-        window.addEventListener('mousemove', (e) => {
-            if (!this.dragging) return;
-
-            const dx = e.clientX - this.lastX;
-            const dy = e.clientY - this.lastY;
-
-            const rotation = this.el.getAttribute('rotation');
-
-            rotation.y += dx * 0.5;
-            rotation.x += dy * 0.5;
-
-            this.el.setAttribute('rotation', rotation);
-
-            this.lastX = e.clientX;
-            this.lastY = e.clientY;
-        });
-    }
-});
-</script>
-
 <body>
 
+    <!--Button to start traininig-->
+    <button id="startTraining">
+        Start Training
+    </button>
+
+    <!-- 3D Scene -->
     <a-scene
         mindar-image="imageTargetSrc: ./new_target.mind;"
         color-space="sRGB"
@@ -65,12 +34,12 @@ AFRAME.registerComponent('mouse-rotate', {
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false">
 
+        <!-- Load the background image and all the asset models-->
         <a-assets>
             <img
                 id="shelfImage"
                 src="assets/images/new_marker.jpg">
 
-            <!-- The first item the first aid box so we load it and give it a name-->
             <a-asset-item
                 id="firstAidBox"
                 src="assets/models/first_aid_box_0_1.glb">
@@ -107,78 +76,93 @@ AFRAME.registerComponent('mouse-rotate', {
             </a-asset-item>
         </a-assets>
 
-    <a-camera
-        position="0 0 0"
-        look-controls="enabled: false">
-    </a-camera>
-
-    <a-entity
-        mindar-image-target="targetIndex: 0">
-
-        <a-image
-            src="#shelfImage"
+        <!--Add the camera in the center-->
+        <a-camera
             position="0 0 0"
-            width="1"
-            height="0.6">
-        </a-image>
+            look-controls="enabled: false">
 
+            <a-entity
+                cursor="rayOrigin: mouse"
+                raycaster="objects: .draggable; far: 1000">
+            </a-entity>
+
+        </a-camera>
+
+        <!--Initialize the placements of all the entities in the 3D scene-->
         <a-entity
-            gltf-model="#firstAidBox"
-            position="-0.3 -0.06 0"
-            scale="0.5 0.5 0.5"
-            mouse-rotate>
+            mindar-image-target="targetIndex: 0">
+
+            <a-image
+                src="#shelfImage"
+                position="0 0 0"
+                width="1"
+                height="0.6">
+            </a-image>
+
+            <a-entity
+                gltf-model="#firstAidBox"
+                position="-0.3 -0.06 0"
+                scale="0.5 0.5 0.5">
+            </a-entity>
+
+            <a-entity
+                id="bandAidObject"
+                position="0.1 -0.13 0"
+                scale="0.008 0.008 0.008"
+                draggable-object="target: [mindar-image-target]">
+
+                <a-entity
+                    gltf-model="#bandAid">
+                </a-entity>
+
+                <a-box
+                    class="draggable"
+                    width="10"
+                    height="10"
+                    depth="10"
+                    material="transparent: true; opacity: 0; depthWrite: false">
+                </a-box>
+
+            </a-entity>
+
+            <a-entity
+                gltf-model="#bandageRoll"
+                rotation="0 45 0"
+                position="0.3 -0.09 0"
+                scale="0.05 0.05 0.05">
+            </a-entity>
+
+            <a-entity
+                gltf-model="#painBalm"
+                rotation="0 45 0"
+                position="0.3 -0.26 0"
+                scale="0.005 0.005 0.005">
+            </a-entity>
+
+            <a-entity
+                gltf-model="#paracetamol"
+                rotation="0 -45 0"
+                position="0.1 -0.24 0"
+                scale="0.03 0.03 0.03">
+            </a-entity>
+
+            <a-entity
+                gltf-model="#sprit"
+                rotation="0 45 0"
+                position="0.3 0.04 0"
+                scale="0.02 0.02 0.02">
+            </a-entity>
+
+            <a-entity
+                gltf-model="#thermometer"
+                position="0.1 0.01 0"
+                rotation="90 0 0"
+                scale="2 2 2">
+            </a-entity>
+
         </a-entity>
 
-        <a-entity
-            gltf-model="#bandAid"
-            position="0.1 -0.13 0"
-            scale="0.008 0.008 0.008"
-            mouse-rotate>
-        </a-entity>
-
-        <a-entity
-            gltf-model="#bandageRoll"
-            rotation="0 45 0"
-            position="0.3 -0.09 0"
-            scale="0.05 0.05 0.05"
-            mouse-rotate>
-        </a-entity>
-
-        <a-entity
-            gltf-model="#painBalm"
-            rotation="0 45 0"
-            position="0.3 -0.26 0"
-            scale="0.005 0.005 0.005"
-            mouse-rotate>
-        </a-entity>
-
-        <a-entity
-            gltf-model="#paracetamol"
-            rotation="0 -45 0"
-            position="0.1 -0.24 0"
-            scale="0.03 0.03 0.03"
-            mouse-rotate>
-        </a-entity>
-
-        <a-entity
-            gltf-model="#sprit"
-            rotation="0 45 0"
-            position="0.3 0.04 0"
-            scale="0.02 0.02 0.02"
-            mouse-rotate>
-        </a-entity>
-
-        <a-entity
-            gltf-model="#thermometer"
-            position="0.1 0.01 0"
-            rotation="90 0 0"
-            scale="2 2 2"
-            mouse-rotate>
-        </a-entity>
-
-    </a-entity>
-
-</a-scene>
+    </a-scene>
 
     <script src="app.js"></script>
 

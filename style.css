@@ -3,3 +3,24 @@ body {
     overflow: hidden;
     font-family: Arial, sans-serif;
 }
+
+#startTraining {
+    display: none;
+
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+
+    z-index: 1000;
+
+    padding: 15px 30px;
+    border: none;
+    border-radius: 10px;
+
+    background: #4CAF50;
+    color: white;
+
+    font-size: 18px;
+    font-weight: bold;
+}
