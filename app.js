@@ -6,6 +6,26 @@ const instructionButton = document.getElementById('instructionButton');
 const trainingButtonsContainer = document.getElementById('trainingButtonsContainer');
 const viewItemsButton = document.getElementById('viewItemsButton');
 const scenarioButton = document.getElementById('scenarioButton');
+const scenarioBloodHand = document.getElementById('scenarioBloodHand');
+
+// Create scenario question button
+const scenarioQuestionButton = document.createElement('button');
+scenarioQuestionButton.id = 'scenarioQuestionButton';
+scenarioQuestionButton.textContent = "What do you use with this hand wound?";
+scenarioQuestionButton.style.display = 'none';
+scenarioQuestionButton.style.position = 'fixed';
+scenarioQuestionButton.style.bottom = '20px';
+scenarioQuestionButton.style.left = '50%';
+scenarioQuestionButton.style.transform = 'translateX(-50%)';
+scenarioQuestionButton.style.padding = '12px 24px';
+scenarioQuestionButton.style.fontSize = '16px';
+scenarioQuestionButton.style.backgroundColor = '#FF6B6B';
+scenarioQuestionButton.style.color = 'white';
+scenarioQuestionButton.style.border = 'none';
+scenarioQuestionButton.style.borderRadius = '5px';
+scenarioQuestionButton.style.cursor = 'pointer';
+scenarioQuestionButton.style.zIndex = '1000';
+document.body.appendChild(scenarioQuestionButton);
 
 // Define instructions for each item
 const itemInstructions = {
@@ -52,7 +72,9 @@ scene.addEventListener('targetLost', function () {
     console.log("Marker lost!");
     startButton.style.display = 'none';
     trainingButtonsContainer.classList.remove('visible');
-
+    scenarioBloodHand.setAttribute('visible', 'false');
+    scenarioQuestionButton.style.display = 'none';
+    window.scenarioMode = false;
 });
 
 // Start Training button - shows View Items and Scenario buttons
@@ -74,12 +96,17 @@ viewItemsButton.addEventListener('click', function () {
     console.log("Podium shown - ready for drag and drop");
 });
 
-// Scenario button - for future scenarios
+// Scenario button - display blood hand model with question
 scenarioButton.addEventListener('click', function () {
     console.log("Scenario clicked");
     trainingButtonsContainer.classList.remove('visible');
-    // TODO: Implement scenario logic
-    alert("Scenario mode coming soon!");
+    window.scenarioMode = true;
+    
+    // Show the blood hand model
+    scenarioBloodHand.setAttribute('visible', 'true');
+    scenarioQuestionButton.style.display = 'block';
+    
+    console.log("Blood hand model shown with question button");
 });
 
 // Register draggable component - adapted from working fire extinguisher code
