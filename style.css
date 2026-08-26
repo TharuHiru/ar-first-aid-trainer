@@ -106,6 +106,43 @@ body {
     cursor: pointer;
 }
 
+#markerlessFallbackVideo {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: 0;
+}
+
+/* Let the fallback camera video show through the WebGL canvas */
+#markerlessScene {
+    background: transparent;
+}
+
+#markerlessScene canvas.a-canvas {
+    background: transparent !important;
+    z-index: 1;
+}
+
+#placeHereButton {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    padding: 14px 28px;
+    font-size: 17px;
+    font-weight: bold;
+    background-color: #4CAF50;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+}
+
 #scenarioQuestionButton {
     display: none;
     position: fixed;

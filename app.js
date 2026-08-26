@@ -12,9 +12,16 @@ const scenarioButton = document.getElementById('scenarioButton');
 // Markerless (WebXR hit-test) scene + its overlay UI - used only for Scenario mode
 const markerlessScene = document.getElementById('markerlessScene');
 const markerlessOverlay = document.getElementById('markerlessOverlay');
+const markerlessFallbackVideo = document.getElementById('markerlessFallbackVideo');
 const exitScenarioButton = document.getElementById('exitScenarioButton');
+const placeHereButton = document.getElementById('placeHereButton');
 const scenarioQuestionButton = document.getElementById('scenarioQuestionButton');
 const scenarioBloodHandMarkerless = document.getElementById('scenarioBloodHandMarkerless');
+
+// Scenario mode state
+let arModeActive = false;       // true WebXR hit-test session is running
+let fallbackModeActive = false; // AR-lite (camera + gyro, no WebXR) is running
+let fallbackStream = null;      // getUserMedia stream used by the AR-lite fallback
 
 // Define instructions for each item
 const itemInstructions = {
@@ -83,51 +90,127 @@ viewItemsButton.addEventListener('click', function () {
 });
 
 // Scenario button - leave the marker-based scene entirely and switch to the
-// markerless (WebXR hit-test) scene, where the user scans a flat surface
-// and taps to place the blood hand model.
+// markerless scene. Tries real WebXR hit-test AR first (best quality, needs
+// ARCore on Android; not available on iOS at all). If that isn't supported
+// or fails to start, falls back to "AR-lite": live camera feed + gyroscope
+// look-around, with a Place Here button instead of a real detected surface.
+// This fallback works on essentially any phone with a camera and gyro,
+// including iPhones, since it doesn't use WebXR/ARCore at all.
 scenarioButton.addEventListener('click', async function () {
-    console.log("Scenario clicked - switching to markerless AR");
+    console.log("Scenario clicked");
+
+    if (!window.isSecureContext) {
+        alert("Scenario mode needs a secure connection (https://) to use the camera and sensors.");
+        return;
+    }
+
     trainingButtonsContainer.classList.remove('visible');
     window.scenarioMode = true;
 
-    // Stop MindAR so it releases the camera feed for the new WebXR session.
+    // Check for real WebXR AR support before touching anything.
+    let arSupported = false;
+    if (navigator.xr) {
+        try {
+            arSupported = await navigator.xr.isSessionSupported('immersive-ar');
+        } catch (err) {
+            console.error("navigator.xr.isSessionSupported check failed:", err);
+        }
+    }
+
+    // Stop MindAR so it releases the camera feed - needed for both paths below.
     // The marker scene itself is left completely intact - just paused/hidden.
     const mindarSystem = markerScene.systems && markerScene.systems['mindar-image-system'];
     if (mindarSystem && typeof mindarSystem.stop === 'function') {
         mindarSystem.stop();
     }
-
-    // Hide the marker scene and its UI, show the markerless one.
     markerScene.style.display = 'none';
     startButton.style.display = 'none';
+
     markerlessScene.style.display = 'block';
     markerlessOverlay.style.display = 'block';
-
-    // Reset for a fresh placement every time Scenario is entered.
     scenarioBloodHandMarkerless.setAttribute('visible', 'false');
     scenarioQuestionButton.style.display = 'none';
+    placeHereButton.style.display = 'none';
 
-    try {
-        await markerlessScene.enterAR();
-        console.log("Entered markerless AR session - scan a flat surface and tap to place the hand");
-    } catch (err) {
-        console.error("Could not start markerless AR session:", err);
-        alert("Couldn't start AR. Your browser/device may not support WebXR AR with plane detection.");
-        returnToMarkerScene();
+    if (arSupported) {
+        try {
+            await markerlessScene.enterAR();
+            arModeActive = true;
+            console.log("Entered real WebXR AR session - scan a flat surface and tap to place the hand");
+            return;
+        } catch (err) {
+            console.error("WebXR AR session failed to start, falling back to AR-lite:", err);
+        }
+    } else {
+        console.log("WebXR AR not supported on this device/browser, using AR-lite fallback");
     }
+
+    startFallbackAR();
 });
 
-// Reticle placement done - reveal the follow-up question once the model is placed
+// AR-lite fallback: camera feed + device orientation, no WebXR required.
+async function startFallbackAR() {
+    try {
+        fallbackStream = await navigator.mediaDevices.getUserMedia({
+            video: { facingMode: { ideal: 'environment' } },
+            audio: false
+        });
+    } catch (err) {
+        console.error("Camera access failed:", err);
+        alert("Couldn't access the camera for Scenario mode. Please allow camera access and try again.");
+        returnToMarkerScene();
+        return;
+    }
+
+    markerlessFallbackVideo.srcObject = fallbackStream;
+    markerlessFallbackVideo.style.display = 'block';
+    try {
+        await markerlessFallbackVideo.play();
+    } catch (err) {
+        console.error("Video playback failed:", err);
+    }
+
+    fallbackModeActive = true;
+    placeHereButton.style.display = 'block';
+    console.log("AR-lite started - look around, then tap Place Here to anchor the hand model");
+}
+
+// Place Here button (AR-lite only) - anchors the model a fixed distance in
+// front of wherever the camera is currently pointing.
+placeHereButton.addEventListener('click', function () {
+    const camera = markerlessScene.camera;
+    if (!camera) {
+        return;
+    }
+
+    const camPos = new THREE.Vector3();
+    camera.getWorldPosition(camPos);
+    const camDir = new THREE.Vector3();
+    camera.getWorldDirection(camDir);
+
+    const distance = 1.2; // meters in front of the camera
+    const targetPos = camPos.clone().add(camDir.multiplyScalar(distance));
+
+    scenarioBloodHandMarkerless.object3D.position.copy(targetPos);
+    scenarioBloodHandMarkerless.object3D.lookAt(camPos.x, targetPos.y, camPos.z);
+    scenarioBloodHandMarkerless.setAttribute('visible', 'true');
+
+    placeHereButton.style.display = 'none';
+    scenarioQuestionButton.style.display = 'block';
+    console.log("Hand model placed (AR-lite)");
+});
+
+// Reticle placement done (true WebXR AR only) - reveal the follow-up question
 markerlessScene.addEventListener('ar-hit-test-select', function () {
     console.log("Hand model placed on detected surface");
     scenarioQuestionButton.style.display = 'block';
 });
 
-// Exit Scenario button - explicitly leave the markerless AR session
+// Exit Scenario button - leave whichever mode is currently active
 exitScenarioButton.addEventListener('click', function () {
     console.log("Exit Scenario clicked");
-    if (markerlessScene.is('ar-mode') || markerlessScene.is('vr-mode')) {
-        markerlessScene.exitVR();
+    if (arModeActive && (markerlessScene.is('ar-mode') || markerlessScene.is('vr-mode'))) {
+        markerlessScene.exitVR(); // triggers 'exit-vr' below, which cleans up
     } else {
         returnToMarkerScene();
     }
@@ -140,8 +223,22 @@ markerlessScene.addEventListener('exit-vr', returnToMarkerScene);
 
 function returnToMarkerScene() {
     console.log("Returning to marker-based scene");
+    arModeActive = false;
+
+    if (fallbackModeActive) {
+        fallbackModeActive = false;
+        if (fallbackStream) {
+            fallbackStream.getTracks().forEach(function (track) { track.stop(); });
+            fallbackStream = null;
+        }
+        markerlessFallbackVideo.pause();
+        markerlessFallbackVideo.srcObject = null;
+        markerlessFallbackVideo.style.display = 'none';
+    }
+
     markerlessScene.style.display = 'none';
     markerlessOverlay.style.display = 'none';
+    placeHereButton.style.display = 'none';
     scenarioQuestionButton.style.display = 'none';
     scenarioBloodHandMarkerless.setAttribute('visible', 'false');
     window.scenarioMode = false;
