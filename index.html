@@ -41,8 +41,9 @@
         Apply item
     </button>
 
-    <!-- 3D Scene -->
+    <!-- Marker-based 3D Scene (MindAR) - untouched, still handles Start Training / View Items -->
     <a-scene
+        id="markerScene"
         mindar-image="imageTargetSrc: ./new_target.mind;"
         color-space="sRGB"
         renderer="colorManagement: true"
@@ -232,6 +233,57 @@
         </a-entity>
 
     </a-scene>
+
+    <!-- ============================================================ -->
+    <!-- Markerless (WebXR hit-test) AR Scene - used ONLY for Scenario mode.
+         Completely separate from markerScene above so the marker-based
+         experience is never touched by this. Hidden until Scenario is picked. -->
+    <!-- ============================================================ -->
+    <a-scene
+        id="markerlessScene"
+        style="display: none;"
+        webxr="optionalFeatures: hit-test, local-floor, dom-overlay; overlayElement: #markerlessOverlay;"
+        ar-hit-test="target: #scenarioBloodHandMarkerless; type: footprint;"
+        renderer="colorManagement: true"
+        vr-mode-ui="enabled: false"
+        device-orientation-permission-ui="enabled: false">
+
+        <a-assets>
+            <a-asset-item
+                id="bloodHandMarkerless"
+                src="assets/models/blood_hand.glb">
+            </a-asset-item>
+        </a-assets>
+
+        <a-camera
+            position="0 0 0"
+            look-controls="enabled: false">
+        </a-camera>
+
+        <!-- Placed on the detected surface once the user taps the reticle.
+             Starts hidden - ar-hit-test shows it automatically after placement. -->
+        <a-entity
+            id="scenarioBloodHandMarkerless"
+            gltf-model="#bloodHandMarkerless"
+            rotation="0 0 0"
+            scale="0.02 0.02 0.02"
+            visible="false">
+        </a-entity>
+
+    </a-scene>
+
+    <!-- HTML overlay shown on top of the markerless AR session (WebXR dom-overlay).
+         Regular page HTML is not visible during an immersive AR session unless
+         it lives inside the designated overlay element, so the Scenario buttons
+         live here instead of floating divs appended by app.js. -->
+    <div id="markerlessOverlay" style="display: none;">
+        <button id="exitScenarioButton">
+            Exit Scenario
+        </button>
+        <button id="scenarioQuestionButton" style="display: none;">
+            What do you use with this hand wound?
+        </button>
+    </div>
 
     <script src="app.js"></script>
 

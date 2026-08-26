@@ -79,3 +79,45 @@ body {
     color: white;
     font-size: 16px;
 }
+
+/* Overlay UI shown on top of the markerless (WebXR) Scenario AR session */
+#markerlessOverlay {
+    /* The dom-overlay root fills the screen during the AR session, so its
+       own children are positioned with fixed/absolute like normal page UI. */
+    pointer-events: none;
+}
+
+#markerlessOverlay button {
+    pointer-events: auto;
+}
+
+#exitScenarioButton {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 1000;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 8px;
+    background-color: rgba(34, 34, 34, 0.85);
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+#scenarioQuestionButton {
+    display: none;
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 1000;
+    padding: 12px 24px;
+    font-size: 16px;
+    background-color: #FF6B6B;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+}

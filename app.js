@@ -1,31 +1,20 @@
 // This will detect when the marker is found or lost and show/hide the start button accordingly.
+// NOTE: `scene` here is always the marker-based (MindAR) scene - untouched from before.
 const scene = document.querySelector('a-scene');
+const markerScene = document.getElementById('markerScene');
 const startButton = document.getElementById('startTraining');
 const podium = document.getElementById('podium');
 const instructionButton = document.getElementById('instructionButton');
 const trainingButtonsContainer = document.getElementById('trainingButtonsContainer');
 const viewItemsButton = document.getElementById('viewItemsButton');
 const scenarioButton = document.getElementById('scenarioButton');
-const scenarioBloodHand = document.getElementById('scenarioBloodHand');
 
-// Create scenario question button
-const scenarioQuestionButton = document.createElement('button');
-scenarioQuestionButton.id = 'scenarioQuestionButton';
-scenarioQuestionButton.textContent = "What do you use with this hand wound?";
-scenarioQuestionButton.style.display = 'none';
-scenarioQuestionButton.style.position = 'fixed';
-scenarioQuestionButton.style.bottom = '20px';
-scenarioQuestionButton.style.left = '50%';
-scenarioQuestionButton.style.transform = 'translateX(-50%)';
-scenarioQuestionButton.style.padding = '12px 24px';
-scenarioQuestionButton.style.fontSize = '16px';
-scenarioQuestionButton.style.backgroundColor = '#FF6B6B';
-scenarioQuestionButton.style.color = 'white';
-scenarioQuestionButton.style.border = 'none';
-scenarioQuestionButton.style.borderRadius = '5px';
-scenarioQuestionButton.style.cursor = 'pointer';
-scenarioQuestionButton.style.zIndex = '1000';
-document.body.appendChild(scenarioQuestionButton);
+// Markerless (WebXR hit-test) scene + its overlay UI - used only for Scenario mode
+const markerlessScene = document.getElementById('markerlessScene');
+const markerlessOverlay = document.getElementById('markerlessOverlay');
+const exitScenarioButton = document.getElementById('exitScenarioButton');
+const scenarioQuestionButton = document.getElementById('scenarioQuestionButton');
+const scenarioBloodHandMarkerless = document.getElementById('scenarioBloodHandMarkerless');
 
 // Define instructions for each item
 const itemInstructions = {
@@ -72,9 +61,6 @@ scene.addEventListener('targetLost', function () {
     console.log("Marker lost!");
     startButton.style.display = 'none';
     trainingButtonsContainer.classList.remove('visible');
-    scenarioBloodHand.setAttribute('visible', 'false');
-    scenarioQuestionButton.style.display = 'none';
-    window.scenarioMode = false;
 });
 
 // Start Training button - shows View Items and Scenario buttons
@@ -96,18 +82,77 @@ viewItemsButton.addEventListener('click', function () {
     console.log("Podium shown - ready for drag and drop");
 });
 
-// Scenario button - display blood hand model with question
-scenarioButton.addEventListener('click', function () {
-    console.log("Scenario clicked");
+// Scenario button - leave the marker-based scene entirely and switch to the
+// markerless (WebXR hit-test) scene, where the user scans a flat surface
+// and taps to place the blood hand model.
+scenarioButton.addEventListener('click', async function () {
+    console.log("Scenario clicked - switching to markerless AR");
     trainingButtonsContainer.classList.remove('visible');
     window.scenarioMode = true;
-    
-    // Show the blood hand model
-    scenarioBloodHand.setAttribute('visible', 'true');
-    scenarioQuestionButton.style.display = 'block';
-    
-    console.log("Blood hand model shown with question button");
+
+    // Stop MindAR so it releases the camera feed for the new WebXR session.
+    // The marker scene itself is left completely intact - just paused/hidden.
+    const mindarSystem = markerScene.systems && markerScene.systems['mindar-image-system'];
+    if (mindarSystem && typeof mindarSystem.stop === 'function') {
+        mindarSystem.stop();
+    }
+
+    // Hide the marker scene and its UI, show the markerless one.
+    markerScene.style.display = 'none';
+    startButton.style.display = 'none';
+    markerlessScene.style.display = 'block';
+    markerlessOverlay.style.display = 'block';
+
+    // Reset for a fresh placement every time Scenario is entered.
+    scenarioBloodHandMarkerless.setAttribute('visible', 'false');
+    scenarioQuestionButton.style.display = 'none';
+
+    try {
+        await markerlessScene.enterAR();
+        console.log("Entered markerless AR session - scan a flat surface and tap to place the hand");
+    } catch (err) {
+        console.error("Could not start markerless AR session:", err);
+        alert("Couldn't start AR. Your browser/device may not support WebXR AR with plane detection.");
+        returnToMarkerScene();
+    }
 });
+
+// Reticle placement done - reveal the follow-up question once the model is placed
+markerlessScene.addEventListener('ar-hit-test-select', function () {
+    console.log("Hand model placed on detected surface");
+    scenarioQuestionButton.style.display = 'block';
+});
+
+// Exit Scenario button - explicitly leave the markerless AR session
+exitScenarioButton.addEventListener('click', function () {
+    console.log("Exit Scenario clicked");
+    if (markerlessScene.is('ar-mode') || markerlessScene.is('vr-mode')) {
+        markerlessScene.exitVR();
+    } else {
+        returnToMarkerScene();
+    }
+});
+
+// Fires whenever the WebXR AR session ends - whether from Exit Scenario,
+// the system's own back/close control, or the browser. Always brings the
+// user back to the (untouched) marker-based scene.
+markerlessScene.addEventListener('exit-vr', returnToMarkerScene);
+
+function returnToMarkerScene() {
+    console.log("Returning to marker-based scene");
+    markerlessScene.style.display = 'none';
+    markerlessOverlay.style.display = 'none';
+    scenarioQuestionButton.style.display = 'none';
+    scenarioBloodHandMarkerless.setAttribute('visible', 'false');
+    window.scenarioMode = false;
+
+    markerScene.style.display = 'block';
+
+    const mindarSystem = markerScene.systems && markerScene.systems['mindar-image-system'];
+    if (mindarSystem && typeof mindarSystem.start === 'function') {
+        mindarSystem.start();
+    }
+}
 
 // Register draggable component - adapted from working fire extinguisher code
 AFRAME.registerComponent('draggable-object', {
