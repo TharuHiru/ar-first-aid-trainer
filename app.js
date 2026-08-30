@@ -1,5 +1,51 @@
 // This will detect when the marker is found or lost and show/hide the start button accordingly.
 // NOTE: `scene` here is always the marker-based (MindAR) scene - untouched from before.
+
+// ============================================================
+// Debug Console - Shows logs on-screen for mobile debugging
+// ============================================================
+const debugPanel = document.getElementById('debugPanel');
+const debugLogs = document.getElementById('debugLogs');
+const debugClose = document.getElementById('debugClose');
+let debugLogCount = 0;
+
+function addDebugLog(message) {
+    debugLogCount++;
+    const timestamp = new Date().toLocaleTimeString();
+    const logEntry = document.createElement('div');
+    logEntry.textContent = `[${timestamp}] ${message}`;
+    debugLogs.appendChild(logEntry);
+    
+    // Auto-scroll to bottom
+    debugLogs.scrollTop = debugLogs.scrollHeight;
+    
+    // Keep only last 50 logs to avoid memory issues
+    while (debugLogs.children.length > 50) {
+        debugLogs.removeChild(debugLogs.firstChild);
+    }
+    
+    // Show the debug panel
+    debugPanel.style.display = 'flex';
+}
+
+debugClose.addEventListener('click', function() {
+    debugPanel.style.display = 'none';
+});
+
+// Intercept console.log, console.error to display on screen
+const originalLog = console.log;
+const originalError = console.error;
+
+console.log = function(...args) {
+    originalLog.apply(console, args);
+    addDebugLog('LOG: ' + args.join(' '));
+};
+
+console.error = function(...args) {
+    originalError.apply(console, args);
+    addDebugLog('ERROR: ' + args.join(' '));
+};
+
 const scene = document.querySelector('a-scene');
 const markerScene = document.getElementById('markerScene');
 const startButton = document.getElementById('startTraining');
@@ -16,7 +62,9 @@ const markerlessFallbackVideo = document.getElementById('markerlessFallbackVideo
 const exitScenarioButton = document.getElementById('exitScenarioButton');
 const placeHereButton = document.getElementById('placeHereButton');
 const scenarioQuestionButton = document.getElementById('scenarioQuestionButton');
-const scenarioBloodHandMarkerless = document.getElementById('scenarioBloodHandMarkerless');
+const reticle = document.getElementById('reticle');
+const placedModel = document.getElementById('placedModel');
+const arStatusMessage = document.getElementById('arStatusMessage');
 
 // Scenario mode state
 let arModeActive = false;       // true WebXR hit-test session is running
@@ -89,6 +137,19 @@ viewItemsButton.addEventListener('click', function () {
     console.log("Podium shown - ready for drag and drop");
 });
 
+// ============================================================
+// Scenario mode - WebXR hit-test AR (with AR-lite fallback)
+// ============================================================
+
+// Shows/updates a plain-text status banner in the AR overlay so it's
+// immediately obvious whether this device is actually running real
+// WebXR hit-test AR or fell back to the camera-only mode.
+function setArStatus(text, show) {
+    if (show === undefined) show = true;
+    arStatusMessage.textContent = text;
+    arStatusMessage.style.display = show ? 'block' : 'none';
+}
+
 // Scenario button - leave the marker-based scene entirely and switch to the
 // markerless scene. Tries real WebXR hit-test AR first (best quality, needs
 // ARCore on Android; not available on iOS at all). If that isn't supported
@@ -107,15 +168,11 @@ scenarioButton.addEventListener('click', async function () {
     trainingButtonsContainer.classList.remove('visible');
     window.scenarioMode = true;
 
-    // Check for real WebXR AR support before touching anything.
-    let arSupported = false;
-    if (navigator.xr) {
-        try {
-            arSupported = await navigator.xr.isSessionSupported('immersive-ar');
-        } catch (err) {
-            console.error("navigator.xr.isSessionSupported check failed:", err);
-        }
-    }
+    reticle.setAttribute('visible', 'false');
+    placedModel.setAttribute('visible', 'false');
+    scenarioQuestionButton.style.display = 'none';
+    placeHereButton.style.display = 'none';
+    setArStatus("Checking WebXR AR support on this device...");
 
     // Stop MindAR so it releases the camera feed - needed for both paths below.
     // The marker scene itself is left completely intact - just paused/hidden.
@@ -128,24 +185,61 @@ scenarioButton.addEventListener('click', async function () {
 
     markerlessScene.style.display = 'block';
     markerlessOverlay.style.display = 'block';
-    scenarioBloodHandMarkerless.setAttribute('visible', 'false');
-    scenarioQuestionButton.style.display = 'none';
-    placeHereButton.style.display = 'none';
+
+    // Check for real WebXR AR support before touching anything.
+    let arSupported = false;
+    if (navigator.xr) {
+        try {
+            arSupported = await navigator.xr.isSessionSupported('immersive-ar');
+        } catch (err) {
+            console.error("navigator.xr.isSessionSupported check failed:", err);
+        }
+    }
 
     if (arSupported) {
+        setArStatus("✅ WebXR AR is supported. Starting session...");
         try {
             await markerlessScene.enterAR();
             arModeActive = true;
-            console.log("Entered real WebXR AR session - scan a flat surface and tap to place the hand");
+            setArStatus("Move your phone slowly to scan for a flat surface, then tap the screen to place the box.");
+            console.log("Entered real WebXR AR session - scan a flat surface and tap to place the box");
             return;
         } catch (err) {
             console.error("WebXR AR session failed to start, falling back to AR-lite:", err);
+            setArStatus("⚠️ WebXR AR failed to start on this device. Falling back to camera view (no real surface detection).");
         }
     } else {
         console.log("WebXR AR not supported on this device/browser, using AR-lite fallback");
+        setArStatus("❌ This device/browser does not support WebXR AR (no real surface detection). Falling back to camera view.");
     }
 
     startFallbackAR();
+});
+
+// Fires once ar-hit-test finds a real surface for the first time (or again
+// after losing and re-finding one). Real WebXR AR only.
+markerlessScene.addEventListener('ar-hit-test-achieved', function () {
+    if (!placedModel.getAttribute('visible')) {
+        setArStatus("Surface detected — tap anywhere on the screen to place the box.");
+    }
+});
+
+// Fires when the user taps the screen while a hit-test result is active
+// (real WebXR AR only). This is the actual placement trigger.
+markerlessScene.addEventListener('ar-hit-test-select', function () {
+    console.log("Surface tapped - placing test model at hit-test location");
+
+    // Copy the reticle's current tracked position/rotation onto the placed model
+    placedModel.object3D.position.copy(reticle.object3D.position);
+    placedModel.object3D.quaternion.copy(reticle.object3D.quaternion);
+    placedModel.setAttribute('visible', 'true');
+
+    // Stop hit-test from continuing to move the reticle now that we've placed
+    markerlessScene.removeAttribute('ar-hit-test');
+    reticle.setAttribute('visible', 'false');
+
+    setArStatus("✅ Box placed on a real detected surface — this device supports WebXR hit-test AR.");
+    scenarioQuestionButton.style.display = 'block';
 });
 
 // AR-lite fallback: camera feed + device orientation, no WebXR required.
@@ -170,16 +264,32 @@ async function startFallbackAR() {
         console.error("Video playback failed:", err);
     }
 
+    // Ensure markerlessScene canvas is visible and properly styled
+    console.log("AR-lite: Setting up scene display");
+    markerlessScene.style.display = 'block';
+    const sceneCanvas = markerlessScene.canvas;
+    if (sceneCanvas) {
+        sceneCanvas.style.position = 'absolute';
+        sceneCanvas.style.top = '0';
+        sceneCanvas.style.left = '0';
+        sceneCanvas.style.width = '100%';
+        sceneCanvas.style.height = '100%';
+        sceneCanvas.style.zIndex = '10';
+        console.log("Canvas positioned and z-indexed");
+    }
+
     fallbackModeActive = true;
     placeHereButton.style.display = 'block';
-    console.log("AR-lite started - look around, then tap Place Here to anchor the hand model");
+    console.log("AR-lite started - look around, then tap Place Here to anchor the test box");
 }
 
-// Place Here button (AR-lite only) - anchors the model a fixed distance in
-// front of wherever the camera is currently pointing.
+// Place Here button (AR-lite only) - anchors the box a fixed distance in
+// front of wherever the camera is currently pointing. Not a real detected
+// surface - just an approximation for devices without WebXR hit-test.
 placeHereButton.addEventListener('click', function () {
     const camera = markerlessScene.camera;
     if (!camera) {
+        console.error("Camera not found in markerless scene");
         return;
     }
 
@@ -191,19 +301,16 @@ placeHereButton.addEventListener('click', function () {
     const distance = 1.2; // meters in front of the camera
     const targetPos = camPos.clone().add(camDir.multiplyScalar(distance));
 
-    scenarioBloodHandMarkerless.object3D.position.copy(targetPos);
-    scenarioBloodHandMarkerless.object3D.lookAt(camPos.x, targetPos.y, camPos.z);
-    scenarioBloodHandMarkerless.setAttribute('visible', 'true');
+    console.log("Placing test box at:", targetPos);
+
+    placedModel.object3D.position.copy(targetPos);
+    placedModel.object3D.lookAt(camPos.x, targetPos.y, camPos.z);
+    placedModel.setAttribute('visible', 'true');
 
     placeHereButton.style.display = 'none';
     scenarioQuestionButton.style.display = 'block';
-    console.log("Hand model placed (AR-lite)");
-});
-
-// Reticle placement done (true WebXR AR only) - reveal the follow-up question
-markerlessScene.addEventListener('ar-hit-test-select', function () {
-    console.log("Hand model placed on detected surface");
-    scenarioQuestionButton.style.display = 'block';
+    setArStatus("Box placed at an approximate distance — no real surface detection on this device.");
+    console.log("Placement complete (AR-lite fallback)");
 });
 
 // Exit Scenario button - leave whichever mode is currently active
@@ -240,7 +347,14 @@ function returnToMarkerScene() {
     markerlessOverlay.style.display = 'none';
     placeHereButton.style.display = 'none';
     scenarioQuestionButton.style.display = 'none';
-    scenarioBloodHandMarkerless.setAttribute('visible', 'false');
+    reticle.setAttribute('visible', 'false');
+    placedModel.setAttribute('visible', 'false');
+    setArStatus('', false);
+
+    // Restore hit-test tracking for the next time Scenario is opened, since
+    // placing a model removes the ar-hit-test component to freeze the reticle.
+    markerlessScene.setAttribute('ar-hit-test', 'target: #reticle; type: footprint;');
+
     window.scenarioMode = false;
 
     markerScene.style.display = 'block';

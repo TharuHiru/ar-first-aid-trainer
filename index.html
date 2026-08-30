@@ -217,19 +217,6 @@
                 draggable-object="target: [mindar-image-target]; itemName: thermometer">
             </a-entity>
 
-            <!-- Blood Hand Scenario Model -->
-            <a-entity
-                id="scenarioBloodHand"
-                position="0 0 0.1"
-                visible="false">
-                <a-entity
-                    gltf-model="#bloodHand"
-                    rotation="90 0 0"
-                    position="0 -0.28 0"
-                    scale="0.02 0.02 0.02">
-                </a-entity>
-            </a-entity>
-
         </a-entity>
 
     </a-scene>
@@ -237,17 +224,27 @@
     <!-- ============================================================ -->
     <!-- Markerless (WebXR hit-test) AR Scene - used ONLY for Scenario mode.
          Completely separate from markerScene above so the marker-based
-         experience is never touched by this. Hidden until Scenario is picked. -->
+         experience is never touched by this. Hidden until Scenario is picked.
+
+         ar-hit-test targets #reticle: A-Frame automatically moves/shows/hides
+         #reticle every frame to track wherever the device's camera is
+         currently detecting a real-world surface. When the user taps the
+         screen while a surface is detected, the scene fires
+         'ar-hit-test-select' - that's when we actually drop #placedModel
+         (a plain box, kept simple on purpose so you can quickly tell
+         whether hit-test itself works on a given phone). -->
     <!-- ============================================================ -->
     <a-scene
         id="markerlessScene"
         style="display: none;"
         webxr="optionalFeatures: hit-test, local-floor, dom-overlay; overlayElement: #markerlessOverlay;"
-        ar-hit-test="target: #scenarioBloodHandMarkerless; type: footprint;"
+        ar-hit-test="target: #reticle; type: footprint;"
         renderer="colorManagement: true; alpha: true;"
         vr-mode-ui="enabled: false">
 
         <a-assets>
+            <!-- Kept for later: swap #placedModel's geometry/material for this
+                 gltf-model once you've confirmed hit-test works on your phone. -->
             <a-asset-item
                 id="bloodHandMarkerless"
                 src="assets/models/blood_hand.glb">
@@ -264,13 +261,29 @@
             look-controls="enabled: true">
         </a-camera>
 
-        <!-- Placed on the detected surface once the user taps the reticle.
-             Starts hidden - ar-hit-test shows it automatically after placement. -->
+        <!-- Add lighting so models are visible -->
+        <a-light type="ambient" color="#ffffff" intensity="1.5"></a-light>
+        <a-light type="directional" color="#ffffff" intensity="1" position="5 5 5"></a-light>
+
+        <!-- Reticle - a flat ring that ar-hit-test moves onto whatever real
+             surface the camera is currently detecting. Visible only while a
+             surface is actively found; disappears once something is placed. -->
         <a-entity
-            id="scenarioBloodHandMarkerless"
-            gltf-model="#bloodHandMarkerless"
-            rotation="0 0 0"
-            scale="0.02 0.02 0.02"
+            id="reticle"
+            geometry="primitive: ring; radiusInner: 0.05; radiusOuter: 0.07; segmentsTheta: 32"
+            material="color: #4CAF50; shader: flat; side: double"
+            rotation="-90 0 0"
+            visible="false">
+        </a-entity>
+
+        <!-- Simple placed model - deliberately a plain box rather than the
+             blood-hand GLB, so a slow/failed load can't be mistaken for a
+             hit-test/compatibility problem. Positioned at the reticle's
+             location the moment the user taps. -->
+        <a-entity
+            id="placedModel"
+            geometry="primitive: box; width: 0.15; height: 0.15; depth: 0.15"
+            material="color: #FF6B6B"
             visible="false">
         </a-entity>
 
@@ -301,6 +314,18 @@
         <button id="scenarioQuestionButton" style="display: none;">
             What do you use with this hand wound?
         </button>
+        <!-- Tells you in plain text whether this device supports real WebXR
+             hit-test AR, or whether it dropped to the AR-lite fallback. -->
+        <div id="arStatusMessage"></div>
+    </div>
+
+    <!-- Debug Console Panel -->
+    <div id="debugPanel" style="display: none;">
+        <div id="debugHeader">
+            <span id="debugTitle">Debug Logs</span>
+            <button id="debugClose">✕</button>
+        </div>
+        <div id="debugLogs"></div>
     </div>
 
     <script src="app.js"></script>
