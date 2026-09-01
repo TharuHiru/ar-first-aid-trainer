@@ -7,7 +7,7 @@ body {
 /* ============================================================ */
 /* Mode Selector - first screen, choose Marker-Based or Markerless */
 /* ============================================================ */
-#modeSelector {
+#modeSelector, #markerInstructions {
     position: fixed;
     inset: 0;
     z-index: 3000;
@@ -34,7 +34,7 @@ body {
     font-size: 15px;
 }
 
-#modeSelectorButtons {
+#modeSelectorButtons, #markerBasedButtons {
     display: flex;
     flex-direction: column;
     gap: 15px;
@@ -59,6 +59,10 @@ body {
 }
 
 #markerlessModeBtn {
+    background: #2196F3;
+}
+
+#letsStartButton {
     background: #2196F3;
 }
 

@@ -2,9 +2,26 @@ const modeSelector = document.getElementById('modeSelector');
 const markerModeBtn = document.getElementById('markerModeBtn');
 const markerlessModeBtn = document.getElementById('markerlessModeBtn');
 const webxrTestContainer = document.getElementById('webxrTestContainer');
+const markerInstructions = document.getElementById('markerInstructions');
+const downloadMarkerButton = document.getElementById('downloadMarkerButton');
+const letsStartButton = document.getElementById('letsStartButton');
 
 markerModeBtn.addEventListener('click', function () {
     modeSelector.style.display = 'none';
+    markerInstructions.style.display = 'flex';
+});
+
+downloadMarkerButton.addEventListener('click', function () {
+    const link = document.createElement('a');
+    link.href = 'assets/images/new_marker.jpg';
+    link.download = 'marker.jpg';
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+});
+
+letsStartButton.addEventListener('click', function () {
+    markerInstructions.style.display = 'none';
 
     markerScene.style.display = 'block';
     const mindarSystem = markerScene.systems && markerScene.systems['mindar-image-system'];
