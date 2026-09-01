@@ -278,11 +278,10 @@
         vr-mode-ui="enabled: false">
 
         <a-assets>
-            <!-- Kept for later: swap #placedModel's geometry/material for this
-                 gltf-model once you've confirmed hit-test works on your phone. -->
+            <!-- First Aid Box model for placement -->
             <a-asset-item
-                id="bloodHandMarkerless"
-                src="assets/models/blood_hand.glb">
+                id="firstAidBoxMarkerless"
+                src="assets/models/first_aid_box.glb">
             </a-asset-item>
         </a-assets>
 
@@ -311,14 +310,11 @@
             visible="false">
         </a-entity>
 
-        <!-- Simple placed model - deliberately a plain box rather than the
-             blood-hand GLB, so a slow/failed load can't be mistaken for a
-             hit-test/compatibility problem. Positioned at the reticle's
-             location the moment the user taps. -->
+        <!-- Placed model - the first aid box GLB that appears when user taps -->
         <a-entity
             id="placedModel"
-            geometry="primitive: box; width: 0.15; height: 0.15; depth: 0.15"
-            material="color: #FF6B6B"
+            gltf-model="#firstAidBoxMarkerless"
+            scale="1 1 1"
             visible="false">
         </a-entity>
 

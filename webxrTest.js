@@ -90,20 +90,27 @@ function init() {
     reticle.visible = false;
     scene.add(reticle);
 
-    // Tap to place a small cube ("the model") at the reticle position
+    // Tap to place the first aid box model at the reticle position
     const controller = renderer.xr.getController(0);
-    controller.addEventListener("select", () => {
+    controller.addEventListener("select", async () => {
         if (!reticle.visible) {
             show("⚠️ No surface detected yet");
             return;
         }
-        const geometry = new THREE.BoxGeometry(0.08, 0.08, 0.08);
-        const material = new THREE.MeshStandardMaterial({ color: 0x2196f3 });
-        const cube = new THREE.Mesh(geometry, material);
-        cube.position.setFromMatrixPosition(reticle.matrix);
-        scene.add(cube);
-
-        show("🟢 Model placed!<br>Hit-test + rendering both work.");
+        
+        try {
+            // Load the first aid box GLB model
+            const loader = new THREE.GLTFLoader();
+            loader.load('assets/models/first_aid_box.glb', (gltf) => {
+                const model = gltf.scene;
+                model.position.setFromMatrixPosition(reticle.matrix);
+                model.scale.set(1, 1, 1); // Adjust scale as needed
+                scene.add(model);
+                show("🟢 First Aid Box placed!<br>Hit-test + rendering both work.");
+            });
+        } catch (error) {
+            show("❌ Error loading model: " + error.message);
+        }
     });
     scene.add(controller);
 
