@@ -127,8 +127,7 @@ startButton.addEventListener('click', function () {
     podium.setAttribute('visible', 'true');
 
     // guide the user to drag an item onto the podium
-    guideMessage.textContent = 'Drag and drop an item onto the podium to view its usage.';
-    guideMessage.style.display = 'block';
+    showGuideMessage('Drag and drop an item onto the podium to view its usage.');
 });
 
 
@@ -193,6 +192,16 @@ function returnToMarkerScene() {
     if (mindarSystem && typeof mindarSystem.start === 'function') {
         mindarSystem.start();
     }
+}
+
+function showGuideMessage(text) {
+    guideMessage.textContent = text;
+    guideMessage.style.display = 'block';
+
+    // restart the CSS animation by forcing a reflow
+    guideMessage.style.animation = 'none';
+    void guideMessage.offsetWidth; // force reflow
+    guideMessage.style.animation = 'guideMessagePop 0.4s ease-out';
 }
 
 // Register draggable component - adapted from working fire extinguisher code
@@ -310,7 +319,6 @@ AFRAME.registerComponent('draggable-object', {
             z: position.z
         });
     },
-    
     onPointerUp(event) {
         if (!this.isDragging) {
             return;
@@ -346,8 +354,7 @@ AFRAME.registerComponent('draggable-object', {
             // Stage 2: guide the user to try another item, the first time only
             if (window.guideStage === 0) {
                 window.guideStage = 1;
-                guideMessage.textContent = 'You can place it back and try another item to view.';
-                guideMessage.style.display = 'block';
+                showGuideMessage('You can place it back and try another item to view.');
             }
 
         } else {
@@ -367,8 +374,7 @@ AFRAME.registerComponent('draggable-object', {
             // Stage 3: after the first item is taken off the podium, show final encouragement
             if (window.guideStage === 1) {
                 window.guideStage = 2;
-                guideMessage.textContent = 'Well done! Try exploring the other items too.';
-                guideMessage.style.display = 'block';
+                showGuideMessage('Well done! Try exploring the other items too.');
             }
         }
         
