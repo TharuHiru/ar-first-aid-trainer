@@ -15,8 +15,6 @@
     <!-- Importing MindAR -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
-    <!-- Import map for the standalone Markerless WebXR test (three.js module build).
-         Must live in <head>, before any type="module" script that imports "three". -->
     <script type="importmap">
     {
       "imports": {
@@ -31,12 +29,7 @@
 
 <!-- Rotate the 3D model using mouse drag events. -->
 <body>
-
-    <!-- ============================================================ -->
-    <!-- Mode Selector - the very first screen. Choose Marker-Based AR
-         (the existing trainer, completely untouched below) or Markerless
-         AR (the standalone WebXR hit-test compatibility test). -->
-    <!-- ============================================================ -->
+    
     <div id="modeSelector">
         <h1 id="modeSelectorTitle">AR First-Aid Kit Trainer</h1>
         <p id="modeSelectorSubtitle">Choose an AR mode to begin</p>
@@ -67,14 +60,7 @@
         Apply item
     </button>
 
-    <!-- Marker-based 3D Scene (MindAR) - UNTOUCHED functionality, still handles
-         Start Training / View Items / in-training Scenario mode exactly as
-         before. The only two changes for the mode selector are:
-           1) autoStart: false  - so MindAR doesn't grab the camera until the
-              user actually picks "Marker-Based AR"
-           2) style="display: none;" - hidden until that same moment
-         Everything else (assets, entities, draggable items, podium) is
-         identical to the original. -->
+    <!-- Marker-based Scene -->
     <a-scene
         id="markerScene"
         style="display: none;"

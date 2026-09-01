@@ -76,6 +76,15 @@ window.itemOnPodium = null;
 window.trainingStarted = false;
 window.viewItemsMode = false;
 
+// Sound effects for picking up / placing items
+const pickupSound = new Audio('assets/sounds/pickup.wav');
+const placeSound = new Audio('assets/sounds/place.wav');
+
+function playSound(audioEl) {
+    const instance = audioEl.cloneNode();
+    instance.play().catch(() => {}); // ignore autoplay-block errors
+}
+
 scene.addEventListener('targetFound', function () {
     startButton.style.display = 'block';
 });
@@ -246,6 +255,7 @@ AFRAME.registerComponent('draggable-object', {
         }
         
         this.isDragging = true;
+        playSound(pickupSound);
         this.canvas.setPointerCapture(event.pointerId);
         event.preventDefault();
     },
@@ -286,6 +296,7 @@ AFRAME.registerComponent('draggable-object', {
         }
         
         this.isDragging = false;
+        playSound(placeSound);
         const currentPos = this.el.getAttribute('position');
         
         // Check if dropped on podium
