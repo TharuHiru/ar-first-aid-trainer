@@ -327,17 +327,6 @@
 
     </a-scene>
 
-    <!-- Camera passthrough for the AR-lite fallback (no WebXR/ARCore needed).
-         Sits behind the transparent markerlessScene canvas. Hidden unless the
-         fallback path is actually used. -->
-    <video
-        id="markerlessFallbackVideo"
-        autoplay
-        muted
-        playsinline
-        style="display: none;">
-    </video>
-
     <!-- HTML overlay shown on top of the markerless AR session (WebXR dom-overlay).
          Regular page HTML is not visible during an immersive AR session unless
          it lives inside the designated overlay element, so the Scenario buttons
@@ -345,9 +334,6 @@
     <div id="markerlessOverlay" style="display: none;">
         <button id="exitScenarioButton">
             Exit Scenario
-        </button>
-        <button id="placeHereButton" style="display: none;">
-            Place Here
         </button>
         <button id="scenarioQuestionButton" style="display: none;">
             What do you use with this hand wound?
@@ -367,15 +353,6 @@
     <div id="webxrTestContainer" style="display: none;">
         <div id="webxrTestStatus">Checking WebXR...</div>
         <button id="webxrTestStart">Start AR</button>
-    </div>
-
-    <!-- Debug Console Panel -->
-    <div id="debugPanel" style="display: none;">
-        <div id="debugHeader">
-            <span id="debugTitle">Debug Logs</span>
-            <button id="debugClose">✕</button>
-        </div>
-        <div id="debugLogs"></div>
     </div>
 
     <script src="app.js"></script>
