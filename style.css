@@ -96,6 +96,26 @@ body {
     cursor: pointer;
 }
 
+#guideMessage {
+    position: fixed;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 2000;
+
+    max-width: 85%;
+    padding: 12px 20px;
+    border-radius: 10px;
+
+    background: rgba(17, 17, 17, 0.85);
+    color: white;
+    font-size: 15px;
+    font-weight: bold;
+    text-align: center;
+
+    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
 /* Container for training mode buttons */
 .button-container {
     display: none;

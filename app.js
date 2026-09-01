@@ -5,6 +5,12 @@ const webxrTestContainer = document.getElementById('webxrTestContainer');
 const markerInstructions = document.getElementById('markerInstructions');
 const downloadMarkerButton = document.getElementById('downloadMarkerButton');
 const letsStartButton = document.getElementById('letsStartButton');
+const guideMessage = document.getElementById('guideMessage');
+
+window.itemOnPodium = null;
+window.trainingStarted = false;
+window.viewItemsMode = false;
+window.guideStage = 0; // 0 = not started, 1 = first item placed, 2 = well done shown
 
 markerModeBtn.addEventListener('click', function () {
     modeSelector.style.display = 'none';
@@ -108,23 +114,21 @@ scene.addEventListener('targetFound', function () {
 
 scene.addEventListener('targetLost', function () {
     startButton.style.display = 'none';
-    trainingButtonsContainer.classList.remove('visible');
 });
 
-// Start Training button - shows View Items and Scenario buttons
+// Start Training button 
 startButton.addEventListener('click', function () {
+    
     startButton.style.display = 'none';
-    trainingButtonsContainer.classList.add('visible');
-});
-
-// View Items button - enables drag and drop with podium only
-viewItemsButton.addEventListener('click', function () {
     window.trainingStarted = true;
     window.viewItemsMode = true;
-    trainingButtonsContainer.classList.remove('visible');
-    
+
     // Show the podium
     podium.setAttribute('visible', 'true');
+
+    // guide the user to drag an item onto the podium
+    guideMessage.textContent = 'Drag and drop an item onto the podium to view its usage.';
+    guideMessage.style.display = 'block';
 });
 
 
@@ -338,6 +342,14 @@ AFRAME.registerComponent('draggable-object', {
             instructionButton.textContent = instruction;
             instructionButton.style.display = 'block';
             podium.querySelector('#podiumTop').setAttribute('material', 'emissive: #90EE90');
+            
+            // Stage 2: guide the user to try another item, the first time only
+            if (window.guideStage === 0) {
+                window.guideStage = 1;
+                guideMessage.textContent = 'You can place it back and try another item to view.';
+                guideMessage.style.display = 'block';
+            }
+
         } else {
             // Return item to original position
             const originalPos = originalPositions[this.itemName];
@@ -350,8 +362,14 @@ AFRAME.registerComponent('draggable-object', {
                 window.itemOnPodium = null;
                 instructionButton.style.display = 'none';
             }
-            
             podium.querySelector('#podiumTop').setAttribute('material', 'emissive: #1a3a1a');
+
+            // Stage 3: after the first item is taken off the podium, show final encouragement
+            if (window.guideStage === 1) {
+                window.guideStage = 2;
+                guideMessage.textContent = 'Well done! Try exploring the other items too.';
+                guideMessage.style.display = 'block';
+            }
         }
         
         if (this.canvas.hasPointerCapture(event.pointerId)) {
