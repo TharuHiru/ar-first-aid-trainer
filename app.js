@@ -46,6 +46,49 @@ console.error = function(...args) {
     addDebugLog('ERROR: ' + args.join(' '));
 };
 
+// ============================================================
+// Mode Selector - first screen shown to the user. Picking
+// "Marker-Based AR" starts the existing trainer exactly as before
+// (nothing about it changes). Picking "Markerless AR" hides the
+// marker scene (which was never started) and boots the standalone
+// WebXR hit-test compatibility test from webxrTest.js instead.
+// ============================================================
+const modeSelector = document.getElementById('modeSelector');
+const markerModeBtn = document.getElementById('markerModeBtn');
+const markerlessModeBtn = document.getElementById('markerlessModeBtn');
+const webxrTestContainer = document.getElementById('webxrTestContainer');
+
+markerModeBtn.addEventListener('click', function () {
+    console.log("Marker-Based AR mode selected");
+    modeSelector.style.display = 'none';
+
+    // markerScene starts with display:none and mindar-image autoStart:false
+    // in index.html precisely so nothing about the camera/scanning kicks in
+    // until this point. From here on the app behaves exactly as before.
+    markerScene.style.display = 'block';
+    const mindarSystem = markerScene.systems && markerScene.systems['mindar-image-system'];
+    if (mindarSystem && typeof mindarSystem.start === 'function') {
+        mindarSystem.start();
+    }
+});
+
+markerlessModeBtn.addEventListener('click', function () {
+    console.log("Markerless AR mode selected");
+    modeSelector.style.display = 'none';
+
+    webxrTestContainer.style.display = 'block';
+    if (typeof window.initMarkerlessWebXRTest === 'function') {
+        window.initMarkerlessWebXRTest();
+    } else {
+        console.error("Markerless WebXR test script (webxrTest.js) not loaded");
+    }
+});
+
+// ============================================================
+// Everything below this point is the original marker-based trainer,
+// untouched.
+// ============================================================
+
 const scene = document.querySelector('a-scene');
 const markerScene = document.getElementById('markerScene');
 const startButton = document.getElementById('startTraining');

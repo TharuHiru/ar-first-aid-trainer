@@ -15,11 +15,40 @@
     <!-- Importing MindAR -->
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.2.5/dist/mindar-image-aframe.prod.js"></script>
 
+    <!-- Import map for the standalone Markerless WebXR test (three.js module build).
+         Must live in <head>, before any type="module" script that imports "three". -->
+    <script type="importmap">
+    {
+      "imports": {
+        "three": "https://unpkg.com/three@0.160.0/build/three.module.js",
+        "three/addons/": "https://unpkg.com/three@0.160.0/examples/jsm/"
+      }
+    }
+    </script>
+
     <link rel="stylesheet" href="style.css">
 </head>
 
 <!-- Rotate the 3D model using mouse drag events. -->
 <body>
+
+    <!-- ============================================================ -->
+    <!-- Mode Selector - the very first screen. Choose Marker-Based AR
+         (the existing trainer, completely untouched below) or Markerless
+         AR (the standalone WebXR hit-test compatibility test). -->
+    <!-- ============================================================ -->
+    <div id="modeSelector">
+        <h1 id="modeSelectorTitle">AR First-Aid Kit Trainer</h1>
+        <p id="modeSelectorSubtitle">Choose an AR mode to begin</p>
+        <div id="modeSelectorButtons">
+            <button id="markerModeBtn" class="mode-button">
+                Marker-Based AR
+            </button>
+            <button id="markerlessModeBtn" class="mode-button" data-variant="markerless">
+                Markerless AR (WebXR Test)
+            </button>
+        </div>
+    </div>
 
     <!--Button to start traininig-->
     <button id="startTraining">
@@ -41,10 +70,18 @@
         Apply item
     </button>
 
-    <!-- Marker-based 3D Scene (MindAR) - untouched, still handles Start Training / View Items -->
+    <!-- Marker-based 3D Scene (MindAR) - UNTOUCHED functionality, still handles
+         Start Training / View Items / in-training Scenario mode exactly as
+         before. The only two changes for the mode selector are:
+           1) autoStart: false  - so MindAR doesn't grab the camera until the
+              user actually picks "Marker-Based AR"
+           2) style="display: none;" - hidden until that same moment
+         Everything else (assets, entities, draggable items, podium) is
+         identical to the original. -->
     <a-scene
         id="markerScene"
-        mindar-image="imageTargetSrc: ./new_target.mind;"
+        style="display: none;"
+        mindar-image="imageTargetSrc: ./new_target.mind; autoStart: false;"
         color-space="sRGB"
         renderer="colorManagement: true"
         vr-mode-ui="enabled: false"
@@ -222,9 +259,10 @@
     </a-scene>
 
     <!-- ============================================================ -->
-    <!-- Markerless (WebXR hit-test) AR Scene - used ONLY for Scenario mode.
-         Completely separate from markerScene above so the marker-based
-         experience is never touched by this. Hidden until Scenario is picked.
+    <!-- Markerless (WebXR hit-test) AR Scene - used ONLY for the in-training
+         "Scenario" button above. Completely separate from markerScene above
+         so the marker-based experience is never touched by this. Hidden
+         until Scenario is picked.
 
          ar-hit-test targets #reticle: A-Frame automatically moves/shows/hides
          #reticle every frame to track wherever the device's camera is
@@ -319,6 +357,18 @@
         <div id="arStatusMessage"></div>
     </div>
 
+    <!-- ============================================================ -->
+    <!-- Standalone Markerless WebXR AR compatibility test. This is the
+         exact snippet you shared, wired up so it only starts once the
+         user taps "Markerless AR" on the mode selector above. It is a
+         fully separate three.js + ARButton experience - it does NOT touch
+         or reuse the marker scene or the in-training Scenario mode above. -->
+    <!-- ============================================================ -->
+    <div id="webxrTestContainer" style="display: none;">
+        <div id="webxrTestStatus">Checking WebXR...</div>
+        <button id="webxrTestStart">Start AR</button>
+    </div>
+
     <!-- Debug Console Panel -->
     <div id="debugPanel" style="display: none;">
         <div id="debugHeader">
@@ -329,6 +379,7 @@
     </div>
 
     <script src="app.js"></script>
+    <script type="module" src="webxrTest.js"></script>
 
 </body>
 </html>
