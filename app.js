@@ -29,7 +29,6 @@ const podium = document.getElementById('podium');
 const instructionButton = document.getElementById('instructionButton');
 const trainingButtonsContainer = document.getElementById('trainingButtonsContainer');
 const viewItemsButton = document.getElementById('viewItemsButton');
-const scenarioButton = document.getElementById('scenarioButton');
 
 const markerlessScene = document.getElementById('markerlessScene');
 const markerlessOverlay = document.getElementById('markerlessOverlay');
@@ -108,59 +107,6 @@ function setArStatus(text, show) {
     arStatusMessage.textContent = text;
     arStatusMessage.style.display = show ? 'block' : 'none';
 }
-
-scenarioButton.addEventListener('click', async function () {
-    if (!window.isSecureContext) {
-        alert("Scenario mode needs a secure connection (https://) to use the camera and sensors.");
-        return;
-    }
-
-    trainingButtonsContainer.classList.remove('visible');
-    window.scenarioMode = true;
-
-    reticle.setAttribute('visible', 'false');
-    placedModel.setAttribute('visible', 'false');
-    scenarioQuestionButton.style.display = 'none';
-    setArStatus("Checking WebXR AR support on this device...");
-
-    const mindarSystem = markerScene.systems && markerScene.systems['mindar-image-system'];
-    if (mindarSystem && typeof mindarSystem.stop === 'function') {
-        mindarSystem.stop();
-    }
-    markerScene.style.display = 'none';
-    startButton.style.display = 'none';
-
-    markerlessScene.style.display = 'block';
-    markerlessOverlay.style.display = 'block';
-
-    let arSupported = false;
-    if (navigator.xr) {
-        try {
-            arSupported = await navigator.xr.isSessionSupported('immersive-ar');
-        } catch (err) {
-            // Error checking AR support
-        }
-    }
-
-    if (arSupported) {
-        setArStatus("✅ WebXR AR is supported. Starting session...");
-        try {
-            await markerlessScene.enterAR();
-            arModeActive = true;
-            setArStatus("Move your phone slowly to scan for a flat surface, then tap the screen to place the box.");
-            return;
-        } catch (err) {
-            setArStatus("⚠️ WebXR AR failed to start on this device.");
-            returnToMarkerScene();
-            return;
-        }
-    } else {
-        setArStatus("❌ This device/browser does not support WebXR AR.");
-        returnToMarkerScene();
-        return;
-    }
-});
-
 
 markerlessScene.addEventListener('ar-hit-test-achieved', function () {
     if (!placedModel.getAttribute('visible')) {
