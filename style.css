@@ -221,8 +221,6 @@ body {
 }
 #markerlessModeBtn::before { content: '📱  '; }
 
-#downloadMarkerButton::before { content: '⬇️  '; }
-
 /* Back button, top-left of the marker-instructions (download) screen */
 .back-button {
     position: fixed;
@@ -254,6 +252,45 @@ body {
 
 .back-button:active {
     transform: translateY(0) scale(0.96);
+}
+
+/* Back button shown top-right over the AR camera views (marker-based
+   scene and the standalone markerless WebXR test). Dark translucent
+   pill so it stays legible over a live camera feed. */
+.cam-back-button {
+    display: none;
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 3100;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 999px;
+    background: rgba(16, 36, 61, 0.82);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--white);
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.cam-back-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+}
+
+.cam-back-button:active {
+    transform: translateY(0) scale(0.96);
+}
+
+#webxrBackButton {
+    display: inline-flex;
 }
 
 #markerInstructionsText {

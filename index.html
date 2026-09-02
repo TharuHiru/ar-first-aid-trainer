@@ -77,7 +77,7 @@
             <span class="emoji-float eB10">🧪</span>
         </div>
         <button id="backToModeSelectorButton" class="back-button" aria-label="Back to mode selection" type="button">
-            <span aria-hidden="true">⬅️</span> Back
+            <span aria-hidden="true"></span> Back
         </button>
         <p id="markerInstructionsText">
             Click the button below to download the marker, then scan it with your camera to start the AR experience.
@@ -100,6 +100,13 @@
     <!--Button to start traininig-->
     <button id="startTraining">
         Start Training
+    </button>
+
+    <!-- Back button on the marker-based AR camera view (top-right corner).
+         Shown once the camera scene is active; returns to the mode
+         selector and resets the in-scene training state. -->
+    <button id="camBackButton" class="cam-back-button" aria-label="Back to mode selection" type="button">
+        <span aria-hidden="true"></span> Back
     </button>
 
     <!-- Guide message -->
@@ -387,6 +394,12 @@
     <div id="webxrTestContainer" style="display: none;">
         <div id="webxrTestStatus">Checking WebXR...</div>
         <button id="webxrTestStart">Start AR</button>
+
+        <!-- Back button on the markerless WebXR test camera view
+             (top-right corner). Returns to the mode selector. -->
+        <button id="webxrBackButton" class="cam-back-button" aria-label="Back to mode selection" type="button">
+            <span aria-hidden="true"></span> Back
+        </button>
 
         <!-- The first-aid box "talks" through this speech-bubble cloud. -->
         <div id="kitSpeechBubble" class="kit-speech-bubble" style="display: none;">

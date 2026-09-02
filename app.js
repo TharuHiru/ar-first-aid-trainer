@@ -6,6 +6,8 @@ const markerInstructions = document.getElementById('markerInstructions');
 const downloadMarkerButton = document.getElementById('downloadMarkerButton');
 const letsStartButton = document.getElementById('letsStartButton');
 const guideMessage = document.getElementById('guideMessage');
+const camBackButton = document.getElementById('camBackButton');
+const webxrBackButton = document.getElementById('webxrBackButton');
 
 window.itemOnPodium = null;
 window.trainingStarted = false;
@@ -30,6 +32,9 @@ letsStartButton.addEventListener('click', function () {
     markerInstructions.style.display = 'none';
 
     markerScene.style.display = 'block';
+    if (camBackButton) {
+        camBackButton.style.display = 'inline-flex';
+    }
     const mindarSystem = markerScene.systems && markerScene.systems['mindar-image-system'];
     if (mindarSystem && typeof mindarSystem.start === 'function') {
         mindarSystem.start();
@@ -44,6 +49,46 @@ markerlessModeBtn.addEventListener('click', function () {
         window.initMarkerlessWebXRTest();
     }
 });
+
+// Back button on the marker-based AR camera view (top-right corner).
+// Stops the MindAR camera session, resets the in-scene training state,
+// and returns to the mode selection screen.
+if (camBackButton) {
+    camBackButton.addEventListener('click', function () {
+        const mindarSystem = markerScene.systems && markerScene.systems['mindar-image-system'];
+        if (mindarSystem && typeof mindarSystem.stop === 'function') {
+            mindarSystem.stop();
+        }
+
+        markerScene.style.display = 'none';
+        camBackButton.style.display = 'none';
+        startButton.style.display = 'none';
+        instructionButton.style.display = 'none';
+        guideMessage.style.display = 'none';
+        podium.setAttribute('visible', 'false');
+
+        // Reset training state so re-entering starts fresh
+        window.trainingStarted = false;
+        window.viewItemsMode = false;
+        window.itemOnPodium = null;
+        window.guideStage = 0;
+
+        modeSelector.style.display = 'flex';
+    });
+}
+
+// Back button on the standalone markerless WebXR test camera view
+// (top-right corner). Stops that test session if it exposes a stop
+// hook, then returns to the mode selection screen.
+if (webxrBackButton) {
+    webxrBackButton.addEventListener('click', function () {
+        if (typeof window.stopMarkerlessWebXRTest === 'function') {
+            window.stopMarkerlessWebXRTest();
+        }
+        webxrTestContainer.style.display = 'none';
+        modeSelector.style.display = 'flex';
+    });
+}
 
 const scene = document.querySelector('a-scene');
 const markerScene = document.getElementById('markerScene');
@@ -187,6 +232,9 @@ function returnToMarkerScene() {
     window.scenarioMode = false;
 
     markerScene.style.display = 'block';
+    if (camBackButton) {
+        camBackButton.style.display = 'inline-flex';
+    }
 
     const mindarSystem = markerScene.systems && markerScene.systems['mindar-image-system'];
     if (mindarSystem && typeof mindarSystem.start === 'function') {
