@@ -285,10 +285,9 @@
         vr-mode-ui="enabled: false">
 
         <a-assets>
-            <!-- First Aid Box model for placement -->
             <a-asset-item
-                id="firstAidBoxMarkerless"
-                src="assets/models/first_aid_box_0_1.glb">
+                id="doctorModel"
+                src="assets/models/doctor.glb">
             </a-asset-item>
         </a-assets>
 
@@ -317,10 +316,10 @@
             visible="false">
         </a-entity>
 
-        <!-- Placed model - the first aid box GLB that appears when user taps -->
+        <!-- Placed model - the doctor model that appears when user taps -->
         <a-entity
             id="placedModel"
-            gltf-model="#firstAidBoxMarkerless"
+            gltf-model="#doctorModel"
             scale="1 1 1"
             visible="false">
         </a-entity>
@@ -353,6 +352,27 @@
     <div id="webxrTestContainer" style="display: none;">
         <div id="webxrTestStatus">Checking WebXR...</div>
         <button id="webxrTestStart">Start AR</button>
+
+        <!-- The first-aid box "talks" through this speech-bubble cloud. -->
+        <div id="kitSpeechBubble" class="kit-speech-bubble" style="display: none;">
+            <p id="kitSpeechText"></p>
+        </div>
+
+        <!-- Correct / wrong feedback for the current question. -->
+        <div id="kitFeedback" class="kit-feedback" style="display: none;"></div>
+
+        <!-- The six pieces of first-aid equipment. Kept away from the
+             speech bubble (bottom of the screen) so both are readable
+             at the same time. -->
+        <div id="equipmentPanel" class="equipment-panel" style="display: none;">
+            <button class="equipment-btn" data-item="bandAid">🩹 Band-Aid</button>
+            <button class="equipment-btn" data-item="bandageRoll">🎗️ Bandage Roll</button>
+            <button class="equipment-btn" data-item="painBalm">🧴 Pain Balm</button>
+            <button class="equipment-btn" data-item="paracetamol">💊 Paracetamol</button>
+            <button class="equipment-btn" data-item="sprit">🧪 Antiseptic Spirit</button>
+            <button class="equipment-btn" data-item="thermometer">🌡️ Thermometer</button>
+            <button id="submitAnswerButton">Submit Answer</button>
+        </div>
     </div>
 
     <script src="app.js"></script>

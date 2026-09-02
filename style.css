@@ -286,10 +286,16 @@ body {
     flex-direction: column;
     align-items: center;
     justify-content: flex-end;
-    pointer-events: none;
+    pointer-events: auto;
     padding-bottom: 40px;
     box-sizing: border-box;
     font-family: 'Segoe UI', system-ui, sans-serif;
+}
+
+/* WebGL canvas from Three.js - behind the UI */
+canvas.webxr-test-canvas {
+    pointer-events: none !important;
+    z-index: 1 !important;
 }
 
 #webxrTestStatus {
@@ -322,7 +328,7 @@ body {
 }
 
 #webxrTestStart {
-    pointer-events: auto;
+    pointer-events: auto !important;
     border: none;
     border-radius: 999px;
     padding: 14px 36px;
@@ -336,6 +342,7 @@ body {
     box-shadow: 0 6px 20px rgba(114, 9, 183, 0.45);
     cursor: pointer;
     transition: transform 0.15s ease;
+    z-index: 10000 !important;
 }
 
 #webxrTestStart:active {
@@ -386,9 +393,7 @@ body {
     pointer-events: none;
 }
 
-/* ============================================================ */
 /* Standalone Markerless WebXR AR compatibility test container */
-/* ============================================================ */
 #webxrTestStatus {
     position: fixed;
     z-index: 1500;
@@ -401,6 +406,13 @@ body {
     border-radius: 10px;
     text-align: center;
     max-width: 90%;
+    pointer-events: auto;
+}
+
+/* AR Button created by Three.js ARButton - ensure it's clickable */
+button[aria-label="Enter AR"] {
+    pointer-events: auto !important;
+    z-index: 10000 !important;
 }
 
 #webxrTestStart {
@@ -417,4 +429,141 @@ body {
     color: white;
     font-weight: bold;
     cursor: pointer;
+}
+
+/* Styles for the markerless AR first-aid quiz UI.
+   Kept in its own file since style.css wasn't provided - just link this
+   file next to it (already added to index.html <head>). */
+
+/* ---- Speech bubble the first-aid box "talks" through ---- */
+.kit-speech-bubble {
+    position: fixed;
+    top: 22%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(80vw, 320px);
+    background: #ffffff;
+    color: #1a1a1a;
+    padding: 16px 20px;
+    border-radius: 22px;
+    border: 3px solid #4CAF50;
+    font-family: "Comic Sans MS", "Comic Sans", "Segoe UI", sans-serif;
+    font-size: 16px;
+    line-height: 1.45;
+    text-align: center;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+    z-index: 30;
+    pointer-events: none;
+    max-height: 30vh;
+    overflow-y: auto;
+}
+
+.kit-speech-bubble p {
+    margin: 0;
+}
+
+/* Speech-bubble "tail" pointing down toward the placed box */
+.kit-speech-bubble::before,
+.kit-speech-bubble::after {
+    content: "";
+    position: absolute;
+    left: 50%;
+    transform: translateX(-50%);
+    border-style: solid;
+}
+
+.kit-speech-bubble::after {
+    bottom: -17px;
+    border-width: 17px 13px 0 13px;
+    border-color: #4CAF50 transparent transparent transparent;
+}
+
+.kit-speech-bubble::before {
+    bottom: -12px;
+    border-width: 13px 10px 0 10px;
+    border-color: #ffffff transparent transparent transparent;
+    z-index: 1;
+}
+
+/* ---- Correct / wrong feedback banner ---- */
+.kit-feedback {
+    position: fixed;
+    top: 32%;
+    left: 50%;
+    transform: translateX(-50%);
+    padding: 8px 20px;
+    border-radius: 14px;
+    font-weight: bold;
+    font-size: 15px;
+    text-align: center;
+    z-index: 30;
+    pointer-events: none;
+}
+
+.kit-feedback.correct {
+    background: #d9f7d9;
+    color: #1b6e1b;
+    border: 2px solid #4CAF50;
+}
+
+.kit-feedback.wrong {
+    background: #ffe0e0;
+    color: #a11111;
+    border: 2px solid #e53935;
+}
+
+/* ---- Equipment picker, kept away from the speech bubble at the
+   bottom of the screen so both are readable at once ---- */
+.equipment-panel {
+    position: fixed;
+    bottom: 3%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: min(90vw, 360px);
+    display: none;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 8px;
+    z-index: 30;
+    pointer-events: auto;
+}
+
+.equipment-btn {
+    padding: 10px 4px;
+    font-size: 12.5px;
+    line-height: 1.2;
+    border-radius: 12px;
+    border: 2px solid #4CAF50;
+    background: rgba(255, 255, 255, 0.92);
+    color: #1a1a1a;
+    cursor: pointer;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+    pointer-events: auto;
+}
+
+.equipment-btn:active {
+    transform: scale(0.96);
+}
+
+.equipment-btn.selected {
+    background: #4CAF50;
+    color: #ffffff;
+    border-color: #2e7d32;
+}
+
+#submitAnswerButton {
+    grid-column: 1 / -1;
+    margin-top: 4px;
+    padding: 11px;
+    border-radius: 12px;
+    border: none;
+    background: #2e7d32;
+    color: #ffffff;
+    font-weight: bold;
+    font-size: 14px;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+#submitAnswerButton:active {
+    transform: scale(0.98);
 }
