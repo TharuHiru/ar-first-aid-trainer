@@ -31,6 +31,26 @@
 <body>
     
     <div id="modeSelector">
+        <div class="emoji-bg" aria-hidden="true">
+            <span class="emoji-float eA1">🩺</span>
+            <span class="emoji-float eA2">🧸</span>
+            <span class="emoji-float eA3">💊</span>
+            <span class="emoji-float eA4">🎈</span>
+            <span class="emoji-float eA5">🩹</span>
+            <span class="emoji-float eA6">🌈</span>
+            <span class="emoji-float eA7">🌡️</span>
+            <span class="emoji-float eA8">⭐</span>
+            <span class="emoji-float eA9">💉</span>
+            <span class="emoji-float eA10">🦄</span>
+            <span class="emoji-float eA11">🧪</span>
+            <span class="emoji-float eA12">🐻</span>
+            <span class="emoji-float eA13">🚑</span>
+            <span class="emoji-float eA14">🎨</span>
+            <span class="emoji-float eA15">🧴</span>
+            <span class="emoji-float eA16">🧩</span>
+            <span class="emoji-float eA17">😷</span>
+            <span class="emoji-float eA18">🍭</span>
+        </div>
         <h1 id="modeSelectorTitle">AR First-Aid Kit Trainer</h1>
         <p id="modeSelectorSubtitle">Choose an AR mode to begin</p>
         <div id="modeSelectorButtons">
@@ -44,6 +64,21 @@
     </div>
 
     <div id="markerInstructions" style="display: none;">
+        <div class="emoji-bg" aria-hidden="true">
+            <span class="emoji-float eB1">🩹</span>
+            <span class="emoji-float eB2">🧸</span>
+            <span class="emoji-float eB3">🩺</span>
+            <span class="emoji-float eB4">🎈</span>
+            <span class="emoji-float eB5">💊</span>
+            <span class="emoji-float eB6">🌈</span>
+            <span class="emoji-float eB7">🧴</span>
+            <span class="emoji-float eB8">⭐</span>
+            <span class="emoji-float eB9">🦄</span>
+            <span class="emoji-float eB10">🧪</span>
+        </div>
+        <button id="backToModeSelectorButton" class="back-button" aria-label="Back to mode selection" type="button">
+            <span aria-hidden="true">⬅️</span> Back
+        </button>
         <p id="markerInstructionsText">
             Click the button below to download the marker, then scan it with your camera to start the AR experience.
         </p>
@@ -377,6 +412,23 @@
 
     <script src="app.js"></script>
     <script type="module" src="webxrTest.js"></script>
+
+    <!-- Wires the new "Back" button on the marker-instructions screen.
+         Kept separate from app.js on purpose so it doesn't touch any
+         existing logic there - it just toggles the two screens back. -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            var backBtn = document.getElementById('backToModeSelectorButton');
+            var instructions = document.getElementById('markerInstructions');
+            var selector = document.getElementById('modeSelector');
+            if (backBtn && instructions && selector) {
+                backBtn.addEventListener('click', function () {
+                    instructions.style.display = 'none';
+                    selector.style.display = 'flex';
+                });
+            }
+        });
+    </script>
 
 </body>
 </html>

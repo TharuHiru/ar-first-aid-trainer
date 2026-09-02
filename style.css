@@ -1,7 +1,48 @@
+@import url('https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;600;700;800&display=swap');
+
+:root {
+    /* Blue / child-medicine palette */
+    --sky-50:   #EAF6FF;
+    --sky-100:  #D8EEFF;
+    --sky-200:  #BFE3FF;
+    --blue-400: #4FA3F7;
+    --blue-500: #2F80ED;
+    --blue-600: #1E68D1;
+    --blue-700: #164A96;
+    --teal-400: #2DD4BF;
+    --teal-500: #14B8A6;
+    --coral-500:#FF6B6B;
+    --green-500:#22C55E;
+    --ink-900:  #10243D;
+    --ink-600:  #3A5A7A;
+    --white:    #FFFFFF;
+
+    --radius-lg: 24px;
+    --radius-md: 16px;
+    --radius-sm: 10px;
+    --shadow-soft: 0 12px 30px rgba(30, 104, 209, 0.18);
+    --shadow-pop:  0 6px 16px rgba(30, 104, 209, 0.28);
+
+    --font-display: 'Baloo 2', 'Comic Sans MS', sans-serif;
+    --font-body: 'Nunito', 'Segoe UI', sans-serif;
+}
+
+* { box-sizing: border-box; }
+
 body {
     margin: 0;
     overflow: hidden;
-    font-family: Arial, sans-serif;
+    font-family: var(--font-body);
+    color: var(--ink-900);
+    -webkit-font-smoothing: antialiased;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: 0.001ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.001ms !important;
+    }
 }
 
 /* ============================================================ */
@@ -16,93 +57,236 @@ body {
     align-items: center;
     justify-content: center;
     gap: 10px;
-    background: #111111;
-    color: white;
+    color: var(--ink-900);
     text-align: center;
     padding: 20px;
     box-sizing: border-box;
-    background-image: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url('assets/images/background.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: no-repeat;
+    overflow: hidden;
+
+    /* Soft layered blue gradient, no photo background */
+    background:
+        radial-gradient(circle at 15% 15%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 40%),
+        radial-gradient(circle at 85% 80%, rgba(45,212,191,0.25) 0%, rgba(45,212,191,0) 45%),
+        linear-gradient(160deg, var(--sky-50) 0%, var(--sky-100) 45%, var(--blue-400) 130%);
 }
 
-#modeSelectorTitle {
-    margin: 0 0 5px 0;
-    font-size: 24px;
+/* ---- Floating decorative medical + kid emojis, purely ambient motion ---- */
+.emoji-bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    overflow: hidden;
+    pointer-events: none;
 }
+
+.emoji-float {
+    position: absolute;
+    display: inline-block;
+    opacity: 0.28;
+    filter: drop-shadow(0 6px 10px rgba(0,0,0,0.08));
+    animation: floatDrift 7s ease-in-out infinite;
+    will-change: transform;
+}
+
+@keyframes floatDrift {
+    0%, 100% { transform: translateY(0) rotate(-5deg); }
+    50%      { transform: translateY(-18px) rotate(5deg); }
+}
+
+/* Keep real content above the decorative emoji layer */
+#modeSelectorTitle,
+#modeSelectorSubtitle,
+#modeSelectorButtons,
+#markerInstructionsText,
+#markerBasedButtons {
+    position: relative;
+    z-index: 1;
+}
+
+/* Scattered placement for the welcome screen (#modeSelector) - a mix of
+   medical icons and playful kid icons so it reads friendly, not clinical. */
+.eA1  { top: 8%;  left: 8%;  font-size: 40px; animation-delay: 0s;   }
+.eA2  { top: 10%; right: 10%; font-size: 34px; animation-delay: 0.6s; }
+.eA3  { top: 22%; left: 18%; font-size: 30px; animation-delay: 1.2s; }
+.eA4  { top: 20%; right: 20%; font-size: 32px; animation-delay: 1.8s; }
+.eA5  { top: 34%; left: 6%;  font-size: 34px; animation-delay: 0.3s; }
+.eA6  { top: 32%; right: 7%; font-size: 30px; animation-delay: 2.1s; }
+.eA7  { bottom: 30%; left: 12%; font-size: 30px; animation-delay: 1.5s; }
+.eA8  { bottom: 32%; right: 14%; font-size: 26px; animation-delay: 0.9s; }
+.eA9  { bottom: 20%; left: 20%; font-size: 28px; animation-delay: 2.4s; }
+.eA10 { bottom: 18%; right: 22%; font-size: 32px; animation-delay: 0.4s; }
+.eA11 { top: 46%; left: 4%; font-size: 26px; animation-delay: 1.1s; }
+.eA12 { top: 48%; right: 4%; font-size: 34px; animation-delay: 1.9s; }
+.eA13 { bottom: 8%; left: 8%; font-size: 30px; animation-delay: 0.7s; }
+.eA14 { bottom: 10%; right: 9%; font-size: 26px; animation-delay: 2.6s; }
+.eA15 { top: 6%; left: 40%; font-size: 24px; animation-delay: 1.4s; }
+.eA16 { top: 5%; right: 38%; font-size: 24px; animation-delay: 2.0s; }
+.eA17 { bottom: 6%; left: 42%; font-size: 24px; animation-delay: 0.2s; }
+.eA18 { bottom: 5%; right: 40%; font-size: 24px; animation-delay: 1.7s; }
+
+/* Smaller, lighter scatter for the marker-instructions screen so it
+   doesn't compete with the Back button and Download/Let's Start CTAs. */
+.eB1  { top: 10%; left: 10%; font-size: 30px; animation-delay: 0s;   }
+.eB2  { top: 12%; right: 10%; font-size: 26px; animation-delay: 0.8s; }
+.eB3  { top: 26%; left: 8%;  font-size: 26px; animation-delay: 1.4s; }
+.eB4  { top: 24%; right: 8%; font-size: 24px; animation-delay: 2.0s; }
+.eB5  { bottom: 28%; left: 10%; font-size: 26px; animation-delay: 0.5s; }
+.eB6  { bottom: 26%; right: 10%; font-size: 24px; animation-delay: 1.9s; }
+.eB7  { bottom: 10%; left: 14%; font-size: 24px; animation-delay: 1.1s; }
+.eB8  { bottom: 12%; right: 14%; font-size: 22px; animation-delay: 0.3s; }
+.eB9  { top: 42%; left: 4%; font-size: 22px; animation-delay: 1.6s; }
+.eB10 { top: 44%; right: 4%; font-size: 22px; animation-delay: 0.9s; }
+
+/* Card wrapping the title + buttons, glassmorphism style */
+#modeSelectorTitle {
+    margin: 0 0 4px 0;
+    font-family: var(--font-display);
+    font-weight: 700;
+    font-size: 30px;
+    color: var(--blue-700);
+    animation: popIn 0.5s ease-out;
+}
+
 
 #modeSelectorSubtitle {
-    margin: 0 0 25px 0;
-    color: #cccccc;
-    font-size: 15px;
+    margin: 0 0 26px 0;
+    color: var(--ink-600);
+    font-size: 16px;
+    font-weight: 600;
+    animation: popIn 0.6s ease-out;
+}
+
+@keyframes popIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to   { opacity: 1; transform: translateY(0); }
 }
 
 #modeSelectorButtons, #markerBasedButtons {
     display: flex;
     flex-direction: column;
-    gap: 15px;
+    gap: 16px;
     width: 100%;
-    max-width: 320px;
+    max-width: 340px;
 }
 
 .mode-button {
-    padding: 16px 24px;
+    padding: 18px 26px;
     border: none;
-    border-radius: 10px;
-    background: #4CAF50;
-    color: white;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--blue-500), var(--blue-600));
+    color: var(--white);
+    font-family: var(--font-display);
     font-size: 17px;
-    font-weight: bold;
+    font-weight: 600;
     cursor: pointer;
-    transition: background 0.3s ease;
+    box-shadow: var(--shadow-pop);
+    transition: transform 0.18s ease, box-shadow 0.18s ease, filter 0.18s ease;
     display: inline-flex;
     align-items: center;
     justify-content: center;
-    gap: 8px;
+    gap: 10px;
 }
-    .btn-icon {
+
+.btn-icon {
     width: 18px;
     height: 18px;
     flex-shrink: 0;
 }
 
-.mode-button:hover {
-    background: #45a049;
+/* These two buttons get an emoji via ::before instead, so hide the
+   original inline SVG icons to avoid doubling up. */
+#downloadMarkerButton .btn-icon,
+#letsStartButton .btn-icon {
+    display: none;
 }
 
+.mode-button:hover {
+    transform: translateY(-2px) scale(1.02);
+    filter: brightness(1.05);
+    box-shadow: 0 10px 22px rgba(30, 104, 209, 0.35);
+}
+
+.mode-button:active {
+    transform: translateY(0) scale(0.98);
+}
+
+#markerModeBtn::before { content: '🩹  '; }
+
 #markerlessModeBtn {
-    background: #2196F3;
+    background: linear-gradient(135deg, var(--teal-400), var(--teal-500));
+    box-shadow: 0 6px 16px rgba(20, 184, 166, 0.32);
+}
+#markerlessModeBtn:hover {
+    box-shadow: 0 10px 22px rgba(20, 184, 166, 0.4);
+}
+#markerlessModeBtn::before { content: '📱  '; }
+
+#downloadMarkerButton::before { content: '⬇️  '; }
+
+/* Back button, top-left of the marker-instructions (download) screen */
+.back-button {
+    position: fixed;
+    top: 20px;
+    left: 20px;
+    z-index: 3100;
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 10px 18px;
+    border: none;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    color: var(--blue-700);
+    font-family: var(--font-display);
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(30, 104, 209, 0.22);
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.back-button:hover {
+    transform: translateY(-1px);
+    box-shadow: 0 6px 18px rgba(30, 104, 209, 0.3);
+}
+
+.back-button:active {
+    transform: translateY(0) scale(0.96);
+}
+
+#markerInstructionsText {
+    max-width: 340px;
+    font-size: 16px;
+    font-weight: 600;
+    color: var(--ink-600);
+    margin-bottom: 20px;
 }
 
 #letsStartButton {
-    background: red;
+    background: linear-gradient(135deg, #FF8A65, var(--coral-500));
     position: fixed;
     bottom: 30px;
     left: 50%;
     transform: translateX(-50%);
     z-index: 10;
+    border-radius: 999px;
+    box-shadow: 0 8px 20px rgba(255, 107, 107, 0.4);
+    animation: gentleBounce 1.8s ease-in-out infinite;
+}
+
+@keyframes gentleBounce {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50%      { transform: translateX(-50%) translateY(-6px); }
 }
 
 #letsStartButton span {
     display: inline-block;
-    animation: swayText 1.5s ease-in-out infinite;
-}
-
-@keyframes swayText {
-    0%, 100% {
-        transform: translateX(0);
-    }
-    25% {
-        transform: translateX(-6px);
-    }
-    75% {
-        transform: translateX(6px);
-    }
 }
 
 #markerlessModeBtn:hover {
-    background: #1976D2;
+    background: linear-gradient(135deg, var(--teal-500), var(--teal-400));
 }
 
 #startTraining {
@@ -115,19 +299,27 @@ body {
 
     z-index: 1000;
 
-    padding: 15px 30px;
+    padding: 16px 32px;
     border: none;
-    border-radius: 10px;
+    border-radius: 999px;
 
-    background: #4CAF50;
-    color: white;
+    background: linear-gradient(135deg, var(--blue-500), var(--blue-600));
+    color: var(--white);
 
+    font-family: var(--font-display);
     font-size: 18px;
-    font-weight: bold;
+    font-weight: 700;
+    box-shadow: var(--shadow-pop);
+    transition: transform 0.18s ease, filter 0.18s ease;
+}
+
+#startTraining::before {
+    content: '▶️  ';
 }
 
 #startTraining:hover {
-    background: #45a049;
+    filter: brightness(1.05);
+    transform: translateX(-50%) translateY(-2px);
     cursor: pointer;
 }
 
@@ -139,38 +331,22 @@ body {
     z-index: 2000;
 
     max-width: 85%;
-    padding: 12px 20px;
-    border-radius: 10px;
+    padding: 14px 22px;
+    border-radius: var(--radius-md);
 
-    background: rgba(17, 17, 17, 0.85);
-    color: white;
+    background: rgba(30, 104, 209, 0.92);
+    color: var(--white);
+    font-family: var(--font-body);
     font-size: 15px;
-    font-weight: bold;
+    font-weight: 700;
     text-align: center;
 
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+    box-shadow: 0 6px 18px rgba(30, 104, 209, 0.35);
+    animation: guideMessagePop 0.4s ease-out;
 }
 
-#guideMessage {
-    position: fixed;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    z-index: 2000;
-
-    max-width: 85%;
-    padding: 12px 20px;
-    border-radius: 10px;
-
-    background: rgba(17, 17, 17, 0.85);
-    color: white;
-    font-size: 15px;
-    font-weight: bold;
-    text-align: center;
-
-    box-shadow: 0 2px 8px rgba(0,0,0,0.3);
-
-    animation: guideMessagePop 0.4s ease-out;
+#guideMessage::before {
+    content: '💬 ';
 }
 
 @keyframes guideMessagePop {
@@ -203,20 +379,23 @@ body {
 
 /* Training mode buttons */
 .training-button {
-    padding: 15px 30px;
+    padding: 16px 32px;
     border: none;
-    border-radius: 10px;
-    background: #4CAF50;
-    color: white;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--blue-500), var(--blue-600));
+    color: var(--white);
+    font-family: var(--font-display);
     font-size: 18px;
-    font-weight: bold;
+    font-weight: 700;
     cursor: pointer;
-    transition: background 0.3s ease;
+    box-shadow: var(--shadow-pop);
+    transition: transform 0.18s ease, filter 0.18s ease;
     min-width: 150px;
 }
 
 .training-button:hover {
-    background: #45a049;
+    filter: brightness(1.05);
+    transform: translateY(-2px);
 }
 
 #instructionButton {
@@ -226,18 +405,29 @@ body {
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
-    padding: 12px 24px;
+    padding: 13px 26px;
     border: none;
-    border-radius: 5px;
-    background-color: #222222;
-    color: white;
+    border-radius: 999px;
+    background: linear-gradient(135deg, var(--ink-900), var(--blue-700));
+    color: var(--white);
+    font-family: var(--font-display);
+    font-weight: 600;
     font-size: 16px;
+    box-shadow: var(--shadow-pop);
+    animation: pulseAttention 1.6s ease-in-out infinite;
+}
+
+#instructionButton::before {
+    content: '✅  ';
+}
+
+@keyframes pulseAttention {
+    0%, 100% { box-shadow: 0 6px 16px rgba(30, 104, 209, 0.28); }
+    50%      { box-shadow: 0 6px 22px rgba(30, 104, 209, 0.5); }
 }
 
 /* Overlay UI shown on top of the markerless (WebXR) Scenario AR session */
 #markerlessOverlay {
-    /* The dom-overlay root fills the screen during the AR session, so its
-       own children are positioned with fixed/absolute like normal page UI. */
     pointer-events: none;
 }
 
@@ -250,14 +440,20 @@ body {
     top: 20px;
     left: 20px;
     z-index: 1000;
-    padding: 10px 18px;
+    padding: 11px 20px;
     border: none;
-    border-radius: 8px;
-    background-color: rgba(34, 34, 34, 0.85);
-    color: white;
+    border-radius: 999px;
+    background: rgba(16, 36, 61, 0.85);
+    color: var(--white);
+    font-family: var(--font-body);
     font-size: 15px;
-    font-weight: bold;
+    font-weight: 700;
     cursor: pointer;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+}
+
+#exitScenarioButton::before {
+    content: '✕  ';
 }
 
 /* Markerless AR Scene styling */
@@ -289,7 +485,7 @@ body {
     pointer-events: auto;
     padding-bottom: 40px;
     box-sizing: border-box;
-    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-family: var(--font-body);
 }
 
 /* WebGL canvas from Three.js - behind the UI */
@@ -300,53 +496,67 @@ canvas.webxr-test-canvas {
 
 #webxrTestStatus {
     pointer-events: auto;
-    background: rgba(20, 20, 30, 0.55);
+    background: rgba(20, 60, 110, 0.55);
     backdrop-filter: blur(14px);
     -webkit-backdrop-filter: blur(14px);
-    border: 1px solid rgba(255, 255, 255, 0.15);
-    border-radius: 18px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: var(--radius-md);
     padding: 16px 24px;
     max-width: 90%;
     text-align: center;
     color: #fff;
     font-size: 15px;
-    font-weight: 500;
+    font-weight: 600;
     line-height: 1.5;
-    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35), 0 0 24px rgba(76, 175, 255, 0.25);
-    background-image: linear-gradient(120deg, rgba(76,175,255,0.15), rgba(160,80,255,0.15));
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.25), 0 0 24px rgba(79, 163, 247, 0.35);
+    background-image: linear-gradient(120deg, rgba(79,163,247,0.25), rgba(45,212,191,0.2));
     animation: statusPulse 2.4s ease-in-out infinite;
     margin-bottom: 16px;
+    position: fixed;
+    z-index: 1500;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
 }
 
 @keyframes statusPulse {
     0%, 100% {
-        box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 0 18px rgba(76,175,255,0.25);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.25), 0 0 18px rgba(79,163,247,0.3);
     }
     50% {
-        box-shadow: 0 8px 32px rgba(0,0,0,0.35), 0 0 34px rgba(160,80,255,0.4);
+        box-shadow: 0 8px 32px rgba(0,0,0,0.25), 0 0 34px rgba(45,212,191,0.45);
     }
 }
 
 #webxrTestStart {
     pointer-events: auto !important;
+    position: fixed;
+    z-index: 10000 !important;
+    left: 50%;
+    bottom: 40px;
+    transform: translateX(-50%);
     border: none;
     border-radius: 999px;
-    padding: 14px 36px;
+    padding: 15px 36px;
+    font-family: var(--font-display);
     font-size: 16px;
     font-weight: 700;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.2px;
     color: #fff;
-    background: linear-gradient(135deg, #4CC9F0, #7209B7);
+    background: linear-gradient(135deg, var(--blue-400), var(--teal-400));
     background-size: 200% 200%;
     animation: gradientShift 3s ease infinite;
-    box-shadow: 0 6px 20px rgba(114, 9, 183, 0.45);
+    box-shadow: 0 6px 20px rgba(47, 128, 237, 0.45);
     cursor: pointer;
     transition: transform 0.15s ease;
-    z-index: 10000 !important;
+}
+
+#webxrTestStart::before {
+    content: '🚀  ';
 }
 
 #webxrTestStart:active {
-    transform: scale(0.95);
+    transform: translateX(-50%) scale(0.95);
 }
 
 @keyframes gradientShift {
@@ -362,19 +572,24 @@ canvas.webxr-test-canvas {
     left: 50%;
     transform: translateX(-50%);
     z-index: 1000;
-    padding: 12px 24px;
+    padding: 13px 26px;
+    font-family: var(--font-body);
     font-size: 16px;
-    background-color: #FF6B6B;
+    font-weight: 700;
+    background: linear-gradient(135deg, var(--coral-500), #FF8A65);
     color: white;
     border: none;
-    border-radius: 5px;
+    border-radius: 999px;
     cursor: pointer;
+    box-shadow: 0 6px 16px rgba(255, 107, 107, 0.4);
+    animation: pulseAttention 1.6s ease-in-out infinite;
 }
 
-/* AR compatibility status banner - tells you in plain text whether real
-   WebXR hit-test AR is running, or whether the device fell back to
-   camera-only mode. Not interactive, so it stays pointer-events: none
-   even though it's inside the overlay. */
+#scenarioQuestionButton::before {
+    content: '❓  ';
+}
+
+/* AR compatibility status banner */
 #arStatusMessage {
     display: none;
     position: fixed;
@@ -383,57 +598,24 @@ canvas.webxr-test-canvas {
     transform: translateX(-50%);
     z-index: 1000;
     padding: 10px 20px;
-    background: rgba(0, 0, 0, 0.75);
+    background: rgba(16, 36, 61, 0.78);
     color: #ffffff;
     font-size: 14px;
+    font-weight: 600;
     line-height: 1.4;
-    border-radius: 8px;
+    border-radius: var(--radius-sm);
     text-align: center;
     max-width: 90%;
     pointer-events: none;
-}
-
-/* Standalone Markerless WebXR AR compatibility test container */
-#webxrTestStatus {
-    position: fixed;
-    z-index: 1500;
-    top: 20px;
-    left: 50%;
-    transform: translateX(-50%);
-    padding: 12px 18px;
-    background: rgba(0, 0, 0, 0.75);
-    color: white;
-    border-radius: 10px;
-    text-align: center;
-    max-width: 90%;
-    pointer-events: auto;
 }
 
 /* AR Button created by Three.js ARButton - ensure it's clickable */
 button[aria-label="Enter AR"] {
     pointer-events: auto !important;
     z-index: 10000 !important;
+    border-radius: 999px !important;
+    font-family: var(--font-display) !important;
 }
-
-#webxrTestStart {
-    position: fixed;
-    z-index: 1500;
-    left: 50%;
-    bottom: 40px;
-    transform: translateX(-50%);
-    padding: 15px 25px;
-    font-size: 18px;
-    border: none;
-    border-radius: 8px;
-    background: #4CAF50;
-    color: white;
-    font-weight: bold;
-    cursor: pointer;
-}
-
-/* Styles for the markerless AR first-aid quiz UI.
-   Kept in its own file since style.css wasn't provided - just link this
-   file next to it (already added to index.html <head>). */
 
 /* ---- Speech bubble the first-aid box "talks" through ---- */
 .kit-speech-bubble {
@@ -442,24 +624,35 @@ button[aria-label="Enter AR"] {
     left: 50%;
     transform: translateX(-50%);
     width: min(80vw, 320px);
-    background: #ffffff;
-    color: #1a1a1a;
-    padding: 16px 20px;
-    border-radius: 22px;
-    border: 3px solid #4CAF50;
-    font-family: "Comic Sans MS", "Comic Sans", "Segoe UI", sans-serif;
+    background: var(--white);
+    color: var(--ink-900);
+    padding: 18px 22px;
+    border-radius: 24px;
+    border: 3px solid var(--blue-400);
+    font-family: var(--font-body);
     font-size: 16px;
+    font-weight: 600;
     line-height: 1.45;
     text-align: center;
-    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 10px 26px rgba(47, 128, 237, 0.28);
     z-index: 30;
     pointer-events: none;
     max-height: 30vh;
     overflow-y: auto;
+    animation: speechPop 0.35s ease-out;
+}
+
+@keyframes speechPop {
+    from { opacity: 0; transform: translate(-50%, -8px) scale(0.95); }
+    to   { opacity: 1; transform: translate(-50%, 0) scale(1); }
 }
 
 .kit-speech-bubble p {
     margin: 0;
+}
+
+.kit-speech-bubble p::before {
+    content: '🩺 ';
 }
 
 /* Speech-bubble "tail" pointing down toward the placed box */
@@ -475,13 +668,13 @@ button[aria-label="Enter AR"] {
 .kit-speech-bubble::after {
     bottom: -17px;
     border-width: 17px 13px 0 13px;
-    border-color: #4CAF50 transparent transparent transparent;
+    border-color: var(--blue-400) transparent transparent transparent;
 }
 
 .kit-speech-bubble::before {
     bottom: -12px;
     border-width: 13px 10px 0 10px;
-    border-color: #ffffff transparent transparent transparent;
+    border-color: var(--white) transparent transparent transparent;
     z-index: 1;
 }
 
@@ -491,52 +684,65 @@ button[aria-label="Enter AR"] {
     top: 32%;
     left: 50%;
     transform: translateX(-50%);
-    padding: 8px 20px;
-    border-radius: 14px;
-    font-weight: bold;
+    padding: 10px 22px;
+    border-radius: 999px;
+    font-family: var(--font-display);
+    font-weight: 700;
     font-size: 15px;
     text-align: center;
     z-index: 30;
     pointer-events: none;
+    animation: popIn 0.3s ease-out;
 }
 
 .kit-feedback.correct {
-    background: #d9f7d9;
-    color: #1b6e1b;
-    border: 2px solid #4CAF50;
+    background: #DCFCE7;
+    color: #15803D;
+    border: 2px solid var(--green-500);
 }
+
+.kit-feedback.correct::before { content: '🎉 '; }
 
 .kit-feedback.wrong {
-    background: #ffe0e0;
-    color: #a11111;
-    border: 2px solid #e53935;
+    background: #FFE4E4;
+    color: #B91C1C;
+    border: 2px solid var(--coral-500);
 }
 
-/* ---- Equipment picker, kept away from the speech bubble at the
-   bottom of the screen so both are readable at once ---- */
+.kit-feedback.wrong::before { content: '💡 '; }
+
+/* ---- Equipment picker ---- */
 .equipment-panel {
     position: fixed;
     bottom: 3%;
     left: 50%;
     transform: translateX(-50%);
-    width: min(90vw, 360px);
+    width: min(92vw, 380px);
     display: none;
     grid-template-columns: repeat(3, 1fr);
-    gap: 8px;
+    gap: 10px;
     z-index: 30;
     pointer-events: auto;
+    background: rgba(255, 255, 255, 0.85);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    padding: 14px;
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-soft);
 }
 
 .equipment-btn {
-    padding: 10px 4px;
+    padding: 12px 6px;
+    font-family: var(--font-body);
     font-size: 12.5px;
+    font-weight: 700;
     line-height: 1.2;
-    border-radius: 12px;
-    border: 2px solid #4CAF50;
-    background: rgba(255, 255, 255, 0.92);
-    color: #1a1a1a;
+    border-radius: var(--radius-sm);
+    border: 2px solid var(--blue-400);
+    background: var(--white);
+    color: var(--ink-900);
     cursor: pointer;
-    transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease;
+    transition: background 0.15s ease, color 0.15s ease, transform 0.1s ease, border-color 0.15s ease;
     pointer-events: auto;
 }
 
@@ -545,25 +751,35 @@ button[aria-label="Enter AR"] {
 }
 
 .equipment-btn.selected {
-    background: #4CAF50;
-    color: #ffffff;
-    border-color: #2e7d32;
+    background: linear-gradient(135deg, var(--blue-500), var(--blue-600));
+    color: var(--white);
+    border-color: var(--blue-700);
 }
 
 #submitAnswerButton {
     grid-column: 1 / -1;
-    margin-top: 4px;
-    padding: 11px;
-    border-radius: 12px;
+    margin-top: 6px;
+    padding: 12px;
+    border-radius: var(--radius-sm);
     border: none;
-    background: #2e7d32;
-    color: #ffffff;
-    font-weight: bold;
+    background: linear-gradient(135deg, var(--teal-500), var(--green-500));
+    color: var(--white);
+    font-family: var(--font-display);
+    font-weight: 700;
     font-size: 14px;
     cursor: pointer;
     pointer-events: auto;
+    transition: transform 0.15s ease, filter 0.15s ease;
+}
+
+#submitAnswerButton::before {
+    content: '✔️  ';
 }
 
 #submitAnswerButton:active {
     transform: scale(0.98);
+}
+
+#submitAnswerButton:hover {
+    filter: brightness(1.05);
 }
