@@ -10,11 +10,15 @@ function show(text) {
     console.log(text);
 }
 
-// Scale applied ONLY to the model placed in this standalone markerless test -
-// tune this until it looks right relative to real-world objects on your table.
+// Scale applied ONLY to the model placed in this standalone markerless test
 const MARKERLESS_MODEL_SCALE = 0.1;
 
-let camera, scene, renderer;
+// How much a full screen-drag turn maps onto model rotation. The XR "target
+// ray" for a screen touch only sweeps roughly the camera's FOV as you drag
+// across the screen, so this multiplies that up into a fuller spin.
+const ROTATION_SENSITIVITY = 4;
+
+let camera, scene, renderer, controller;
 let reticle;
 let hitTestSource = null;
 let hitTestSourceRequested = false;
@@ -22,6 +26,12 @@ let initialized = false;
 let firstAidBoxTemplate = null;
 let directionalLight = null;
 let shadowPlane = null;
+
+// The currently placed box - once set, taps no longer place a new one and
+// selectstart/selectend instead rotate this one.
+let placedModel = null;
+let isDraggingRotate = false;
+let lastControllerYaw = 0;
 
 // ------------------------------------------------------------
 // CHECK WEBXR SUPPORT FIRST
@@ -46,6 +56,38 @@ async function checkWebXR() {
 }
 
 // ------------------------------------------------------------
+// DRAG-TO-ROTATE
+// ------------------------------------------------------------
+// The controller Object3D's orientation tracks the XR input source's
+// "target ray" every frame while a screen touch is active - this is what
+// we read instead of DOM pointer events, which don't reliably fire during
+// an immersive-ar session.
+function getControllerYaw() {
+    const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(controller.quaternion);
+    return Math.atan2(dir.x, dir.z);
+}
+
+// Shortest signed angle from b to a, handling the -π/π wraparound
+function angleDelta(a, b) {
+    let d = a - b;
+    while (d > Math.PI) d -= Math.PI * 2;
+    while (d < -Math.PI) d += Math.PI * 2;
+    return d;
+}
+
+function onSelectStart() {
+    // Only rotate if a model is already placed - otherwise this tap is
+    // the initial placement tap and 'select' below handles it.
+    if (!placedModel) return;
+    isDraggingRotate = true;
+    lastControllerYaw = getControllerYaw();
+}
+
+function onSelectEnd() {
+    isDraggingRotate = false;
+}
+
+// ------------------------------------------------------------
 // SETUP THREE.JS SCENE
 // ------------------------------------------------------------
 function init() {
@@ -64,20 +106,14 @@ function init() {
     );
 
     // --- Lighting for a more realistic look ---
-    // Hemisphere light stays as soft ambient/fill (sky vs ground bounce),
-    // dropped a bit in intensity since the directional light now does
-    // the heavy lifting on shading + shadows.
     const hemiLight = new THREE.HemisphereLight(0xffffff, 0xbbbbff, 0.6);
     hemiLight.position.set(0.5, 1, 0.25);
     scene.add(hemiLight);
 
-    // Directional light = the actual "sun" that casts shadows.
     directionalLight = new THREE.DirectionalLight(0xffffff, 1.2);
-    directionalLight.position.set(1, 2, 1); // repositioned relative to placed model below
+    directionalLight.position.set(1, 2, 1);
     directionalLight.castShadow = true;
 
-    // Shadow camera frustum - kept tight since everything here happens
-    // within roughly a 1-2m radius of the placed model.
     directionalLight.shadow.mapSize.width = 1024;
     directionalLight.shadow.mapSize.height = 1024;
     directionalLight.shadow.camera.near = 0.1;
@@ -96,19 +132,23 @@ function init() {
     renderer.setSize(window.innerWidth, window.innerHeight);
     renderer.xr.enabled = true;
 
-    // Enable shadow rendering
     renderer.shadowMap.enabled = true;
     renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 
     document.body.appendChild(renderer.domElement);
 
     const arButton = ARButton.createButton(renderer, {
-        requiredFeatures: ["hit-test"]
+        requiredFeatures: ["hit-test"],
+        requiredFeatures: ["depth-sensing"],
+            depthSensing: {
+                usagePreference: ["gpu-optimized", "cpu-optimized"],
+                dataFormatPreference: ["luminance-alpha", "float32"]
+            }
     });
+    
     document.body.appendChild(arButton);
     startButton.style.display = "none";
 
-    // Reticle = ring showing where a surface was detected
     const reticleGeo = new THREE.RingGeometry(0.06, 0.08, 32).rotateX(-Math.PI / 2);
     const reticleMat = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
     reticle = new THREE.Mesh(reticleGeo, reticleMat);
@@ -116,9 +156,6 @@ function init() {
     reticle.visible = false;
     scene.add(reticle);
 
-    // Invisible shadow-catcher plane. In AR there's no real geometry for
-    // shadows to fall on, so this plane only renders the shadow itself
-    // (ShadowMaterial is transparent everywhere else) onto the real floor.
     const shadowPlaneGeo = new THREE.PlaneGeometry(2, 2);
     const shadowPlaneMat = new THREE.ShadowMaterial({ opacity: 0.35 });
     shadowPlane = new THREE.Mesh(shadowPlaneGeo, shadowPlaneMat);
@@ -128,7 +165,6 @@ function init() {
     shadowPlane.matrixAutoUpdate = false;
     scene.add(shadowPlane);
 
-    // Load the first aid box model in the background.
     try {
         const loader = new GLTFLoader();
         loader.load(
@@ -146,9 +182,14 @@ function init() {
         console.error("GLTFLoader setup failed:", error);
     }
 
-    // Tap to place the first aid box model at the reticle position
-    const controller = renderer.xr.getController(0);
+    controller = renderer.xr.getController(0);
+    scene.add(controller);
+
+    // 'select' = a completed tap. Only place the model the FIRST time -
+    // once placedModel exists, taps are handled by selectstart/selectend
+    // below for rotation instead, so we must not re-place here.
     controller.addEventListener("select", () => {
+        if (placedModel) return; // already placed - ignore, avoid re-placing mid-rotate
         if (!reticle.visible) {
             show("⚠️ No surface detected yet");
             return;
@@ -163,7 +204,6 @@ function init() {
         model.quaternion.setFromRotationMatrix(reticle.matrix);
         model.scale.setScalar(MARKERLESS_MODEL_SCALE);
 
-        // Make every mesh in the model cast a shadow
         model.traverse((node) => {
             if (node.isMesh) {
                 node.castShadow = true;
@@ -172,10 +212,9 @@ function init() {
         });
 
         scene.add(model);
+        placedModel = model;
+        reticle.visible = false;
 
-        // Position the shadow-catcher plane at the same surface/height as
-        // the placed model, and aim the directional light at it so the
-        // shadow lands right under the box.
         shadowPlane.matrix.copy(reticle.matrix);
         shadowPlane.visible = true;
 
@@ -188,9 +227,12 @@ function init() {
         directionalLight.target.position.copy(modelWorldPos);
         directionalLight.target.updateMatrixWorld();
 
-        show("🟢 First Aid Box placed!<br>Hit-test + rendering both work.");
+        show("🟢 First Aid Box placed!<br>Press and drag left/right to rotate it.");
     });
-    scene.add(controller);
+
+    // selectstart/selectend bracket a touch-and-hold - used here for rotation
+    controller.addEventListener("selectstart", onSelectStart);
+    controller.addEventListener("selectend", onSelectEnd);
 
     window.addEventListener("resize", onWindowResize);
 
@@ -203,9 +245,6 @@ function onWindowResize() {
     renderer.setSize(window.innerWidth, window.innerHeight);
 }
 
-// ------------------------------------------------------------
-// RENDER + HIT TEST LOOP
-// ------------------------------------------------------------
 function render(timestamp, frame) {
     if (frame) {
         const referenceSpace = renderer.xr.getReferenceSpace();
@@ -226,7 +265,7 @@ function render(timestamp, frame) {
             hitTestSourceRequested = true;
         }
 
-        if (hitTestSource) {
+        if (hitTestSource && !placedModel) {
             const hitTestResults = frame.getHitTestResults(hitTestSource);
 
             if (hitTestResults.length > 0) {
@@ -241,15 +280,19 @@ function render(timestamp, frame) {
                 show("🔵 Searching for a surface...<br>Move phone slowly over a floor/table");
             }
         }
+
+        // Apply rotation each frame while the user is holding their
+        // finger down after a model is already placed.
+        if (isDraggingRotate && placedModel) {
+            const currentYaw = getControllerYaw();
+            placedModel.rotation.y += angleDelta(currentYaw, lastControllerYaw) * ROTATION_SENSITIVITY;
+            lastControllerYaw = currentYaw;
+        }
     }
 
     renderer.render(scene, camera);
 }
 
-// ------------------------------------------------------------
-// Entry point - called from app.js when the user picks
-// "Markerless AR" on the mode selector.
-// ------------------------------------------------------------
 window.initMarkerlessWebXRTest = function () {
     checkWebXR();
     init();

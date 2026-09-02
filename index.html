@@ -47,15 +47,20 @@
         <p id="markerInstructionsText">
             Click the button below to download the marker, then scan it with your camera to start the AR experience.
         </p>
-        <div id="markerBasedButtons">
-            <button id="downloadMarkerButton" class="mode-button">
-                Download Marker
-            </button>
-            <button id="letsStartButton" class="mode-button">
-                Let's Start
-            </button>
-        </div>
-    </div>
+        <button id="downloadMarkerButton" class="mode-button">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 3v12m0 0l-4-4m4 4l4-4M5 21h14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Download Marker
+        </button>
+
+        <button id="letsStartButton" class="mode-button">
+            <svg class="btn-icon" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M5 3l16 9-16 9V3z" fill="currentColor"/>
+            </svg>
+            <span>Let's Start</span>
+        </button>
+            </div>
 
     <!--Button to start traininig-->
     <button id="startTraining">
@@ -160,7 +165,8 @@
                 id="bandAidObject"
                 position="0.1 -0.13 0"
                 scale="0.008 0.008 0.008"
-                draggable-object="target: [mindar-image-target]; itemName: bandAid">
+                draggable-object="target: [mindar-image-target]; itemName: bandAid"
+                animation="property: rotation; from: 0 -10 0; to: 0 10 0; dir: alternate; loop: true; dur: 1400; easing: easeInOutSine">
 
                 <a-entity
                     gltf-model="#bandAid">
@@ -208,7 +214,8 @@
                 rotation="0 45 0"
                 position="0.3 -0.09 0"
                 scale="0.05 0.05 0.05"
-                draggable-object="target: [mindar-image-target]; itemName: bandageRoll">
+                draggable-object="target: [mindar-image-target]; itemName: bandageRoll"
+                animation="property: rotation; from: 0 35 0; to: 0 55 0; dir: alternate; loop: true; dur: 1400; easing: easeInOutSine">
             </a-entity>
 
             <a-entity
@@ -217,7 +224,8 @@
                 rotation="0 45 0"
                 position="0.3 -0.26 0"
                 scale="0.005 0.005 0.005"
-                draggable-object="target: [mindar-image-target]; itemName: painBalm">
+                draggable-object="target: [mindar-image-target]; itemName: painBalm"
+                animation="property: rotation; from: 0 35 0; to: 0 55 0; dir: alternate; loop: true; dur: 1400; easing: easeInOutSine">
             </a-entity>
 
             <a-entity
@@ -226,7 +234,8 @@
                 rotation="0 -45 0"
                 position="0.1 -0.24 0"
                 scale="0.03 0.03 0.03"
-                draggable-object="target: [mindar-image-target]; itemName: paracetamol">
+                draggable-object="target: [mindar-image-target]; itemName: paracetamol"
+                animation="property: rotation; from: 0 35 0; to: 0 55 0; dir: alternate; loop: true; dur: 1400; easing: easeInOutSine">
             </a-entity>
 
             <a-entity
@@ -235,7 +244,8 @@
                 rotation="0 45 0"
                 position="0.3 0.04 0"
                 scale="0.02 0.02 0.02"
-                draggable-object="target: [mindar-image-target]; itemName: sprit">
+                draggable-object="target: [mindar-image-target]; itemName: sprit"
+                animation="property: rotation; from: 0 35 0; to: 0 55 0; dir: alternate; loop: true; dur: 1400; easing: easeInOutSine">
             </a-entity>
 
             <a-entity
@@ -244,7 +254,8 @@
                 position="0.1 0.01 0"
                 rotation="90 0 0"
                 scale="2 2 2"
-                draggable-object="target: [mindar-image-target]; itemName: thermometer">
+                draggable-object="target: [mindar-image-target]; itemName: thermometer"
+                animation="property: rotation; from: 0 35 0; to: 0 55 0; dir: alternate; loop: true; dur: 1400; easing: easeInOutSine">
             </a-entity>
 
         </a-entity>

@@ -21,6 +21,10 @@ body {
     text-align: center;
     padding: 20px;
     box-sizing: border-box;
+    background-image: linear-gradient(rgba(0,0,0,0.65), rgba(0,0,0,0.65)), url('assets/images/background.jpg');
+    background-size: cover;
+    background-position: center;
+    background-repeat: no-repeat;
 }
 
 #modeSelectorTitle {
@@ -52,6 +56,15 @@ body {
     font-weight: bold;
     cursor: pointer;
     transition: background 0.3s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+}
+    .btn-icon {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
 }
 
 .mode-button:hover {
@@ -63,7 +76,29 @@ body {
 }
 
 #letsStartButton {
-    background: #2196F3;
+    background: red;
+    position: fixed;
+    bottom: 30px;
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 10;
+}
+
+#letsStartButton span {
+    display: inline-block;
+    animation: swayText 1.5s ease-in-out infinite;
+}
+
+@keyframes swayText {
+    0%, 100% {
+        transform: translateX(0);
+    }
+    25% {
+        transform: translateX(-6px);
+    }
+    75% {
+        transform: translateX(6px);
+    }
 }
 
 #markerlessModeBtn:hover {
