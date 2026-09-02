@@ -4,6 +4,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 const statusEl = document.getElementById("webxrTestStatus");
 const startButton = document.getElementById("webxrTestStart");
+const backButton = document.getElementById("webxrTestBackButton");
 
 function show(text) {
     statusEl.innerHTML = text;
@@ -19,7 +20,7 @@ const MARKERLESS_MODEL_SCALE = 0.1;
 const ROTATION_SENSITIVITY = 4;
 
 let camera, scene, renderer, controller;
-let reticle;
+let reticle, reticleMat;
 let hitTestSource = null;
 let hitTestSourceRequested = false;
 let initialized = false;
@@ -53,6 +54,33 @@ async function checkWebXR() {
     } catch (error) {
         show("❌ WebXR check error<br>" + error.message);
     }
+}
+
+// ------------------------------------------------------------
+// BACK TO HOME
+// ------------------------------------------------------------
+// Leaves the markerless test screen and returns to the mode selector.
+// If a real WebXR session is currently running, end it first so the
+// device/browser cleanly exits AR before we swap the UI back.
+function goBackToHome() {
+    const session = renderer && renderer.xr ? renderer.xr.getSession() : null;
+
+    const returnHome = () => {
+        const container = document.getElementById("webxrTestContainer");
+        const modeSelector = document.getElementById("modeSelector");
+        if (container) container.style.display = "none";
+        if (modeSelector) modeSelector.style.display = "flex";
+    };
+
+    if (session) {
+        session.end().then(returnHome).catch(returnHome);
+    } else {
+        returnHome();
+    }
+}
+
+if (backButton) {
+    backButton.addEventListener("click", goBackToHome);
 }
 
 // ------------------------------------------------------------
@@ -138,19 +166,20 @@ function init() {
     document.body.appendChild(renderer.domElement);
 
     const arButton = ARButton.createButton(renderer, {
-        requiredFeatures: ["hit-test"],
-        requiredFeatures: ["depth-sensing"],
-            depthSensing: {
-                usagePreference: ["gpu-optimized", "cpu-optimized"],
-                dataFormatPreference: ["luminance-alpha", "float32"]
-            }
-    });
+    requiredFeatures: ["hit-test"],
+    optionalFeatures: ["dom-overlay", "depth-sensing"],
+    domOverlay: { root: document.getElementById("webxrTestContainer") },
+    depthSensing: {
+        usagePreference: ["gpu-optimized", "cpu-optimized"],
+        dataFormatPreference: ["luminance-alpha", "float32"]
+    }
+});
     
     document.body.appendChild(arButton);
     startButton.style.display = "none";
 
     const reticleGeo = new THREE.RingGeometry(0.06, 0.08, 32).rotateX(-Math.PI / 2);
-    const reticleMat = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+    reticleMat = new THREE.MeshBasicMaterial({ color: 0x3ECF8E, transparent: true });
     reticle = new THREE.Mesh(reticleGeo, reticleMat);
     reticle.matrixAutoUpdate = false;
     reticle.visible = false;
@@ -227,7 +256,7 @@ function init() {
         directionalLight.target.position.copy(modelWorldPos);
         directionalLight.target.updateMatrixWorld();
 
-        show("🟢 First Aid Box placed!<br>Press and drag left/right to rotate it.");
+        show("🩹 First Aid Box placed!<br>Press and drag left/right to rotate it.");
     });
 
     // selectstart/selectend bracket a touch-and-hold - used here for rotation
@@ -246,6 +275,13 @@ function onWindowResize() {
 }
 
 function render(timestamp, frame) {
+    if (reticle && reticle.visible) {
+        const hue = (timestamp * 0.00005) % 1; // slow color cycle
+        reticleMat.color.setHSL(hue, 0.9, 0.55);
+
+        const pulse = 1 + Math.sin(timestamp * 0.004) * 0.08;
+        reticle.scale.set(pulse, pulse, pulse);
+    }
     if (frame) {
         const referenceSpace = renderer.xr.getReferenceSpace();
         const session = renderer.xr.getSession();
