@@ -142,6 +142,60 @@ window.viewItemsMode = false;
 const pickupSound = new Audio('assets/sounds/pickup.wav');
 const placeSound = new Audio('assets/sounds/place.wav');
 
+scene.addEventListener('loaded', function () {
+    const floorEntity = document.getElementById('arFloor');
+    if (!floorEntity) return;
+
+    const size = 512;
+
+    // Floor color/pattern (simple tile grid)
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#c9b89a';
+    ctx.fillRect(0, 0, size, size);
+    ctx.strokeStyle = 'rgba(120, 100, 70, 0.35)';
+    ctx.lineWidth = 2;
+    const tiles = 8;
+    for (let i = 0; i <= tiles; i++) {
+        const p = (i / tiles) * size;
+        ctx.beginPath(); ctx.moveTo(p, 0); ctx.lineTo(p, size); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(0, p); ctx.lineTo(size, p); ctx.stroke();
+    }
+
+    // Radial fade to transparent at the edges, so it blends into the
+    // camera feed instead of showing a hard-edged disc
+    const alphaCanvas = document.createElement('canvas');
+    alphaCanvas.width = size;
+    alphaCanvas.height = size;
+    const actx = alphaCanvas.getContext('2d');
+    const gradient = actx.createRadialGradient(size/2, size/2, size*0.15, size/2, size/2, size*0.5);
+    gradient.addColorStop(0, 'rgba(255,255,255,1)');
+    gradient.addColorStop(0.7, 'rgba(255,255,255,0.55)');
+    gradient.addColorStop(1, 'rgba(255,255,255,0)');
+    actx.fillStyle = gradient;
+    actx.fillRect(0, 0, size, size);
+
+    const colorTexture = new THREE.CanvasTexture(canvas);
+    const alphaTexture = new THREE.CanvasTexture(alphaCanvas);
+
+    const applyTexture = () => {
+        const mesh = floorEntity.getObject3D('mesh');
+        if (!mesh) return;
+        mesh.material.map = colorTexture;
+        mesh.material.alphaMap = alphaTexture;
+        mesh.material.transparent = true;
+        mesh.material.needsUpdate = true;
+    };
+
+    if (floorEntity.getObject3D('mesh')) {
+        applyTexture();
+    } else {
+        floorEntity.addEventListener('loaded', applyTexture, { once: true });
+    }
+});
+
 function playSound(audioEl) {
     const instance = audioEl.cloneNode();
     instance.play().catch(() => {}); // ignore autoplay-block errors

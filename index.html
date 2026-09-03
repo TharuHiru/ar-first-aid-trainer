@@ -230,6 +230,14 @@
             </a-entity>
 
             <!-- Podium that appears when training starts -->
+             <a-entity
+                id="arFloor"
+                geometry="primitive: circle; radius: 0.5; segments: 64"
+                rotation="-90 0 0"
+                position="0.1 -0.33 0.15"
+                material="shader: flat; transparent: true; side: double"
+                shadow="receive: true">
+            </a-entity>
             <a-entity
                 id="podium"
                 position="-0.1 -0.3 0.2"
