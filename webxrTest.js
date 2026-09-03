@@ -4,7 +4,7 @@ import { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 
 const statusEl = document.getElementById("webxrTestStatus");
 const startButton = document.getElementById("webxrTestStart");
-const backButton = document.getElementById("webxrTestBackButton");
+const backButton = document.getElementById("webxrBackButton");
 
 // --- First-aid quiz UI elements (live inside the WebXR dom-overlay, i.e.
 // #webxrTestContainer, so they stay visible during the immersive session) ---
@@ -21,16 +21,8 @@ function show(text) {
 }
 
 // Scale applied ONLY to the model placed in this standalone markerless test
-const MARKERLESS_MODEL_SCALE = 0.1;
-
-// How much a full screen-drag turn maps onto model rotation. The XR "target
-// ray" for a screen touch only sweeps roughly the camera's FOV as you drag
-// across the screen, so this multiplies that up into a fuller spin.
-const ROTATION_SENSITIVITY = 4;
-
-// A touch is treated as a "tap" (opens the quiz) instead of a "drag"
-// (rotates the model) when it's shorter than this and barely rotates
-// the model.
+const MARKERLESS_MODEL_SCALE = 0.5;
+const ROTATION_RADIANS_PER_PIXEL = 0.1;
 const TAP_MAX_DURATION_MS = 350;
 const TAP_MAX_ROTATION_RAD = 0.05;
 
@@ -44,11 +36,11 @@ let directionalLight = null;
 let shadowPlane = null;
 
 // The currently placed box - once set, taps no longer place a new one and
-// selectstart/selectend instead rotate this one (or, if it's a quick tap,
-// open the first-aid quiz).
+// a held drag instead rotates this one (or, if it's a quick tap, opens
+// the first-aid quiz).
 let placedModel = null;
 let isDraggingRotate = false;
-let lastControllerYaw = 0;
+let lastPointerX = null;
 let selectStartTime = 0;
 let dragRotationAmount = 0;
 
@@ -214,47 +206,50 @@ if (backButton) {
 // ------------------------------------------------------------
 // DRAG-TO-ROTATE / TAP-TO-OPEN-QUIZ
 // ------------------------------------------------------------
-// The controller Object3D's orientation tracks the XR input source's
-// "target ray" every frame while a screen touch is active - this is what
-// we read instead of DOM pointer events, which don't reliably fire during
-// an immersive-ar session.
-function getControllerYaw() {
-    const dir = new THREE.Vector3(0, 0, -1).applyQuaternion(controller.quaternion);
-    return Math.atan2(dir.x, dir.z);
-}
-
-// Shortest signed angle from b to a, handling the -π/π wraparound
-function angleDelta(a, b) {
-    let d = a - b;
-    while (d > Math.PI) d -= Math.PI * 2;
-    while (d < -Math.PI) d += Math.PI * 2;
-    return d;
-}
 
 function onSelectStart() {
     // Only rotate if a model is already placed - otherwise this tap is
     // the initial placement tap and 'select' below handles it.
     if (!placedModel) return;
     isDraggingRotate = true;
-    lastControllerYaw = getControllerYaw();
+    lastPointerX = null;
     selectStartTime = performance.now();
     dragRotationAmount = 0;
 }
 
 function onSelectEnd() {
-    isDraggingRotate = false;
-    if (!placedModel) return;
+    if (!placedModel) {
+        isDraggingRotate = false;
+        return;
+    }
 
-    // A short touch that barely rotated the model counts as a "tap" on
-    // the first-aid box itself, rather than a rotate-drag - that's what
-    // opens the quiz.
     const duration = performance.now() - selectStartTime;
     const wasTap = duration < TAP_MAX_DURATION_MS && dragRotationAmount < TAP_MAX_ROTATION_RAD;
+
+    isDraggingRotate = false;
+    lastPointerX = null;
 
     if (wasTap && !trainingActive) {
         startTraining();
     }
 }
+function onPointerMove(event) {
+    if (!isDraggingRotate || !placedModel || trainingActive) return;
+
+    if (lastPointerX === null) {
+        lastPointerX = event.clientX;
+        return;
+    }
+
+    const deltaX = event.clientX - lastPointerX;
+    lastPointerX = event.clientX;
+
+    const deltaYaw = deltaX * ROTATION_RADIANS_PER_PIXEL;
+    placedModel.rotation.y += deltaYaw;
+    dragRotationAmount += Math.abs(deltaYaw);
+}
+
+window.addEventListener("pointermove", onPointerMove);
 
 // ------------------------------------------------------------
 // SETUP THREE.JS SCENE
@@ -321,12 +316,11 @@ function init() {
             dataFormatPreference: ["luminance-alpha", "float32"]
         }
     });
-    
+
     arButton.style.pointerEvents = "auto";
     arButton.style.zIndex = "10000";
     document.body.appendChild(arButton);
-    
-    // Hide the old start button and show the new AR button
+
     startButton.style.display = "none";
     setTimeout(() => {
         const newStartBtn = document.querySelector('button[aria-label="Enter AR"]') || document.body.lastChild;
@@ -372,11 +366,8 @@ function init() {
     controller = renderer.xr.getController(0);
     scene.add(controller);
 
-    // 'select' = a completed tap. Only place the model the FIRST time -
-    // once placedModel exists, taps are handled by selectstart/selectend
-    // below for rotation instead, so we must not re-place here.
     controller.addEventListener("select", () => {
-        if (placedModel) return; // already placed - ignore, avoid re-placing mid-rotate
+        if (placedModel) return; 
         if (!reticle.visible) {
             show("⚠️ No surface detected yet");
             return;
@@ -417,7 +408,6 @@ function init() {
         show("🩹 First-aid box placed!<br>Tap it to start the quiz, or press and drag to rotate it.");
     });
 
-    // selectstart/selectend bracket a touch-and-hold - used here for rotation
     controller.addEventListener("selectstart", onSelectStart);
     controller.addEventListener("selectend", onSelectEnd);
 
@@ -473,17 +463,6 @@ function render(timestamp, frame) {
                 reticle.visible = false;
                 show("🔵 Searching for a surface...<br>Move phone slowly over a floor/table");
             }
-        }
-
-        // Apply rotation each frame while the user is holding their
-        // finger down after a model is already placed. Disabled while
-        // the quiz is active so answering questions never spins the box.
-        if (isDraggingRotate && placedModel && !trainingActive) {
-            const currentYaw = getControllerYaw();
-            const delta = angleDelta(currentYaw, lastControllerYaw) * ROTATION_SENSITIVITY;
-            placedModel.rotation.y += delta;
-            dragRotationAmount += Math.abs(delta);
-            lastControllerYaw = currentYaw;
         }
     }
 

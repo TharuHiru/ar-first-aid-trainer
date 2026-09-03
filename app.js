@@ -50,9 +50,6 @@ markerlessModeBtn.addEventListener('click', function () {
     }
 });
 
-// Back button on the marker-based AR camera view (top-right corner).
-// Stops the MindAR camera session, resets the in-scene training state,
-// and returns to the mode selection screen.
 if (camBackButton) {
     camBackButton.addEventListener('click', function () {
         const mindarSystem = markerScene.systems && markerScene.systems['mindar-image-system'];
@@ -77,9 +74,6 @@ if (camBackButton) {
     });
 }
 
-// Back button on the standalone markerless WebXR test camera view
-// (top-right corner). Stops that test session if it exposes a stop
-// hook, then returns to the mode selection screen.
 if (webxrBackButton) {
     webxrBackButton.addEventListener('click', function () {
         if (typeof window.stopMarkerlessWebXRTest === 'function') {
@@ -197,24 +191,18 @@ markerlessScene.addEventListener('ar-hit-test-select', function () {
     markerlessScene.removeAttribute('ar-hit-test');
     reticle.setAttribute('visible', 'false');
 
-    setArStatus("✅ Box placed on a real detected surface — this device supports WebXR hit-test AR.");
+    setArStatus("Box placed on a real detected surface — this device supports WebXR hit-test AR.");
     scenarioQuestionButton.style.display = 'block';
 });
 
-// AR-lite fallback removed - WebXR only
-// Place Here button removed - WebXR only
-// Exit Scenario button - leave whichever mode is currently active
 exitScenarioButton.addEventListener('click', function () {
     if (arModeActive && (markerlessScene.is('ar-mode') || markerlessScene.is('vr-mode'))) {
-        markerlessScene.exitVR(); // triggers 'exit-vr' below, which cleans up
+        markerlessScene.exitVR(); 
     } else {
         returnToMarkerScene();
     }
 });
 
-// Fires whenever the WebXR AR session ends - whether from Exit Scenario,
-// the system's own back/close control, or the browser. Always brings the
-// user back to the (untouched) marker-based scene.
 markerlessScene.addEventListener('exit-vr', returnToMarkerScene);
 
 function returnToMarkerScene() {
