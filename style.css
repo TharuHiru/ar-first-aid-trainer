@@ -103,17 +103,6 @@ body {
     z-index: 1;
 }
 
-/* Scattered placement for the welcome screen (#modeSelector) - a mix of
-   medical icons and playful kid icons so it reads friendly, not clinical. */
-.eA1  { top: 8%;  left: 8%;  font-size: 40px; animation-delay: 0s;   }
-.eA2  { top: 10%; right: 10%; font-size: 34px; animation-delay: 0.6s; }
-.eA3  { top: 22%; left: 18%; font-size: 30px; animation-delay: 1.2s; }
-.eA4  { top: 20%; right: 20%; font-size: 32px; animation-delay: 1.8s; }
-.eA5  { top: 34%; left: 6%;  font-size: 34px; animation-delay: 0.3s; }
-.eA6  { top: 32%; right: 7%; font-size: 30px; animation-delay: 2.1s; }
-.eA7  { bottom: 30%; left: 12%; font-size: 30px; animation-delay: 1.5s; }
-.eA8  { bottom: 32%; right: 14%; font-size: 26px; animation-delay: 0.9s; }
-.eA9  { bottom: 20%; left: 20%; font-size: 28px; animation-delay: 2.4s; }
 .eA10 { bottom: 18%; right: 22%; font-size: 32px; animation-delay: 0.4s; }
 .eA11 { top: 46%; left: 4%; font-size: 26px; animation-delay: 1.1s; }
 .eA12 { top: 48%; right: 4%; font-size: 34px; animation-delay: 1.9s; }
@@ -124,8 +113,7 @@ body {
 .eA17 { bottom: 6%; left: 42%; font-size: 24px; animation-delay: 0.2s; }
 .eA18 { bottom: 5%; right: 40%; font-size: 24px; animation-delay: 1.7s; }
 
-/* Smaller, lighter scatter for the marker-instructions screen so it
-   doesn't compete with the Back button and Download/Let's Start CTAs. */
+
 .eB1  { top: 10%; left: 10%; font-size: 30px; animation-delay: 0s;   }
 .eB2  { top: 12%; right: 10%; font-size: 26px; animation-delay: 0.8s; }
 .eB3  { top: 26%; left: 8%;  font-size: 26px; animation-delay: 1.4s; }
@@ -136,6 +124,33 @@ body {
 .eB8  { bottom: 12%; right: 14%; font-size: 22px; animation-delay: 0.3s; }
 .eB9  { top: 42%; left: 4%; font-size: 22px; animation-delay: 1.6s; }
 .eB10 { top: 44%; right: 4%; font-size: 22px; animation-delay: 0.9s; }
+
+#webxrTestBg {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    background:
+        radial-gradient(circle at 15% 15%, rgba(255,255,255,0.9) 0%, rgba(255,255,255,0) 40%),
+        radial-gradient(circle at 85% 80%, rgba(45,212,191,0.25) 0%, rgba(45,212,191,0) 45%),
+        linear-gradient(160deg, var(--sky-50) 0%, var(--sky-100) 45%, var(--blue-400) 130%);
+}
+
+#webxrTestBg .emoji-bg {
+    position: absolute;
+    inset: 0;
+}
+
+.eC1  { top: 10%; left: 9%;  font-size: 32px; animation-delay: 0.1s; }
+.eC2  { top: 12%; right: 9%; font-size: 28px; animation-delay: 0.9s; }
+.eC3  { top: 26%; left: 15%; font-size: 26px; animation-delay: 1.5s; }
+.eC4  { top: 24%; right: 16%; font-size: 26px; animation-delay: 2.1s; }
+.eC5  { bottom: 34%; left: 10%; font-size: 28px; animation-delay: 0.5s; }
+.eC6  { bottom: 32%; right: 11%; font-size: 24px; animation-delay: 1.9s; }
+.eC7  { bottom: 16%; left: 18%; font-size: 24px; animation-delay: 1.2s; }
+.eC8  { bottom: 18%; right: 20%; font-size: 22px; animation-delay: 0.3s; }
+.eC9  { top: 44%; left: 5%; font-size: 24px; animation-delay: 1.7s; }
+.eC10 { top: 46%; right: 5%; font-size: 24px; animation-delay: 0.8s; }
 
 /* Card wrapping the title + buttons, glassmorphism style */
 #modeSelectorTitle {
@@ -348,10 +363,6 @@ body {
     font-weight: 700;
     box-shadow: var(--shadow-pop);
     transition: transform 0.18s ease, filter 0.18s ease;
-}
-
-#startTraining::before {
-    content: '▶️  ';
 }
 
 #startTraining:hover {
@@ -819,4 +830,43 @@ button[aria-label="Enter AR"] {
 
 #submitAnswerButton:hover {
     filter: brightness(1.05);
+}
+
+#ARButton {
+    position: fixed !important;
+    left: 50% !important;
+    top: auto !important;
+    bottom: 40px !important;
+    transform: translateX(-50%) !important;
+    width: auto !important;
+    min-width: 180px;
+    margin: 0 !important;
+    padding: 15px 36px !important;
+    border: none !important;
+    border-radius: 999px !important;
+    background: linear-gradient(135deg, var(--blue-400), var(--teal-400)) !important;
+    background-size: 200% 200% !important;
+    animation: gradientShift 3s ease infinite;
+    color: #fff !important;
+    font-family: var(--font-display) !important;
+    font-size: 16px !important;
+    font-weight: 700 !important;
+    letter-spacing: 0.2px;
+    text-align: center !important;
+    box-shadow: 0 6px 20px rgba(47, 128, 237, 0.45) !important;
+    opacity: 1 !important;
+    outline: none !important;
+    z-index: 10000 !important;
+    cursor: pointer !important;
+    transition: transform 0.15s ease;
+}
+
+#ARButton:active {
+    transform: translateX(-50%) scale(0.95) !important;
+}
+
+#ARButton[style*="cursor: auto"] {
+    background: linear-gradient(135deg, #9CA9B8, #6B7A8F) !important;
+    box-shadow: 0 6px 16px rgba(0,0,0,0.25) !important;
+    cursor: not-allowed !important;
 }

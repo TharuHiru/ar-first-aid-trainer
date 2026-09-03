@@ -101,16 +101,16 @@ const placedModel = document.getElementById('placedModel');
 const arStatusMessage = document.getElementById('arStatusMessage');
 
 // Scenario mode state
-let arModeActive = false;       // true WebXR hit-test session is running
+let arModeActive = false;     
 
 // Define instructions for each item
 const itemInstructions = {
-    bandAid: "Apply Band-Aid to wound",
-    bandageRoll: "Wrap bandage roll around injury",
-    painBalm: "Apply pain balm gently",
-    paracetamol: "Take paracetamol tablet",
-    sprit: "Clean wound with spirit",
-    thermometer: "Check temperature"
+    bandAid: "We use a Band-Aid to cover a small cut and keep it safe.",
+    bandageRoll: "We use a bandage to cover and protect an injured area.",
+    painBalm: "We use pain balm to help make sore muscles or small aches feel better.",
+    paracetamol: "Paracetamol can help bring down a fever and make us feel better when we are sick.",
+    sprit: "We use spirit to clean germs from the skin around a small wound.",
+    thermometer: "We use a thermometer to check if our body has a fever."
 };
 
 // Define custom podium positions for each item 

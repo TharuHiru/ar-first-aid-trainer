@@ -118,7 +118,7 @@
         style="display: none;"
         mindar-image="imageTargetSrc: ./new_target.mind; autoStart: false;"
         color-space="sRGB"
-        renderer="colorManagement: true"
+        renderer="colorManagement: true; shadowMap.enabled: true; shadowMap.type: pcfsoft"
         vr-mode-ui="enabled: false"
         device-orientation-permission-ui="enabled: false">
 
@@ -184,6 +184,15 @@
         <!--Initialize the placements of all the entities in the 3D scene-->
         <a-entity
             mindar-image-target="targetIndex: 0">
+        
+        <a-entity
+            light="type: directional; castShadow: true; intensity: 1;
+                shadowCameraNear: 0.01; shadowCameraFar: 3;
+                shadowCameraLeft: -1; shadowCameraRight: 1;
+                shadowCameraTop: 1; shadowCameraBottom: -1;
+                shadowBias: -0.001"
+            position="0 1 1">
+        </a-entity>
 
             <a-image
                 src="#shelfImage"
@@ -206,7 +215,8 @@
                 animation="property: rotation; from: 0 -10 0; to: 0 10 0; dir: alternate; loop: true; dur: 1400; easing: easeInOutSine">
 
                 <a-entity
-                    gltf-model="#bandAid">
+                    gltf-model="#bandAid"
+                    shadow="cast: true">
                 </a-entity>
 
                 <a-box
@@ -240,7 +250,8 @@
                     radius="0.15"
                     height="0.02"
                     position="0 0.08 0"
-                    material="color: #45a049; emissive: #1a3a1a; metalness: 0.5">
+                    material="color: #45a049; emissive: #1a3a1a; metalness: 0.5"
+                    shadow="receive: true">
                 </a-cylinder>
 
             </a-entity>
@@ -251,6 +262,7 @@
                 rotation="0 45 0"
                 position="0.3 -0.09 0"
                 scale="0.05 0.05 0.05"
+                shadow="cast: true"
                 draggable-object="target: [mindar-image-target]; itemName: bandageRoll"
                 animation="property: rotation; from: 0 35 0; to: 0 55 0; dir: alternate; loop: true; dur: 1400; easing: easeInOutSine">
             </a-entity>
@@ -261,6 +273,7 @@
                 rotation="0 45 0"
                 position="0.3 -0.26 0"
                 scale="0.005 0.005 0.005"
+                shadow="cast: true"
                 draggable-object="target: [mindar-image-target]; itemName: painBalm"
                 animation="property: rotation; from: 0 35 0; to: 0 55 0; dir: alternate; loop: true; dur: 1400; easing: easeInOutSine">
             </a-entity>
@@ -271,6 +284,7 @@
                 rotation="0 -45 0"
                 position="0.1 -0.24 0"
                 scale="0.03 0.03 0.03"
+                shadow="cast: true"
                 draggable-object="target: [mindar-image-target]; itemName: paracetamol"
                 animation="property: rotation; from: 0 35 0; to: 0 55 0; dir: alternate; loop: true; dur: 1400; easing: easeInOutSine">
             </a-entity>
@@ -281,6 +295,7 @@
                 rotation="0 45 0"
                 position="0.3 0.04 0"
                 scale="0.02 0.02 0.02"
+                shadow="cast: true"
                 draggable-object="target: [mindar-image-target]; itemName: sprit"
                 animation="property: rotation; from: 0 35 0; to: 0 55 0; dir: alternate; loop: true; dur: 1400; easing: easeInOutSine">
             </a-entity>
@@ -290,6 +305,7 @@
                 id="thermometerObject"
                 position="0.1 0.01 0"
                 rotation="90 0 0"
+                shadow="cast: true"
                 scale="2 2 2"
                 draggable-object="target: [mindar-image-target]; itemName: thermometer"
                 animation="property: rotation; from: 0 35 0; to: 0 55 0; dir: alternate; loop: true; dur: 1400; easing: easeInOutSine">
@@ -363,10 +379,6 @@
 
     </a-scene>
 
-    <!-- HTML overlay shown on top of the markerless AR session (WebXR dom-overlay).
-         Regular page HTML is not visible during an immersive AR session unless
-         it lives inside the designated overlay element, so the Scenario buttons
-         live here instead of floating divs appended by app.js. -->
     <div id="markerlessOverlay" style="display: none;">
         <button id="exitScenarioButton">
             Exit Scenario
@@ -374,19 +386,25 @@
         <button id="scenarioQuestionButton" style="display: none;">
             What do you use with this hand wound?
         </button>
-        <!-- Tells you in plain text whether this device supports real WebXR
-             hit-test AR, or whether it dropped to the AR-lite fallback. -->
-        <div id="arStatusMessage"></div>
+    <div id="arStatusMessage"></div>
     </div>
 
-    <!-- ============================================================ -->
-    <!-- Standalone Markerless WebXR AR compatibility test. This is the
-         exact snippet you shared, wired up so it only starts once the
-         user taps "Markerless AR" on the mode selector above. It is a
-         fully separate three.js + ARButton experience - it does NOT touch
-         or reuse the marker scene or the in-training Scenario mode above. -->
-    <!-- ============================================================ -->
     <div id="webxrTestContainer" style="display: none;">
+        <div id="webxrTestBg" aria-hidden="true">
+            <div class="emoji-bg">
+                <span class="emoji-float eC1">🩺</span>
+                <span class="emoji-float eC2">🧸</span>
+                <span class="emoji-float eC3">💊</span>
+                <span class="emoji-float eC4">🎈</span>
+                <span class="emoji-float eC5">🩹</span>
+                <span class="emoji-float eC6">🌈</span>
+                <span class="emoji-float eC7">🌡️</span>
+                <span class="emoji-float eC8">⭐</span>
+                <span class="emoji-float eC9">🦄</span>
+                <span class="emoji-float eC10">🧪</span>
+            </div>
+        </div>
+
         <div id="webxrTestStatus">Checking WebXR...</div>
         <button id="webxrTestStart">Start AR</button>
 

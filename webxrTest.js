@@ -20,7 +20,6 @@ function show(text) {
     console.log(text);
 }
 
-// Scale applied ONLY to the model placed in this standalone markerless test
 const MARKERLESS_MODEL_SCALE = 0.5;
 const ROTATION_RADIANS_PER_PIXEL = 0.1;
 const TAP_MAX_DURATION_MS = 350;
@@ -34,10 +33,8 @@ let initialized = false;
 let firstAidBoxTemplate = null;
 let directionalLight = null;
 let shadowPlane = null;
+let arButtonEl = null;
 
-// The currently placed box - once set, taps no longer place a new one and
-// a held drag instead rotates this one (or, if it's a quick tap, opens
-// the first-aid quiz).
 let placedModel = null;
 let isDraggingRotate = false;
 let lastPointerX = null;
@@ -166,7 +163,7 @@ async function checkWebXR() {
     try {
         const supported = await navigator.xr.isSessionSupported("immersive-ar");
         if (!supported) {
-            show("❌ immersive-ar NOT supported on this device");
+            show("immersive-ar NOT supported on this device");
             startButton.disabled = true;
             return;
         }
@@ -179,9 +176,7 @@ async function checkWebXR() {
 // ------------------------------------------------------------
 // BACK TO HOME
 // ------------------------------------------------------------
-// Leaves the markerless test screen and returns to the mode selector.
-// If a real WebXR session is currently running, end it first so the
-// device/browser cleanly exits AR before we swap the UI back.
+
 function goBackToHome() {
     const session = renderer && renderer.xr ? renderer.xr.getSession() : null;
 
@@ -190,8 +185,9 @@ function goBackToHome() {
         const modeSelector = document.getElementById("modeSelector");
         if (container) container.style.display = "none";
         if (modeSelector) modeSelector.style.display = "flex";
+        if (arButtonEl) arButtonEl.style.display = "none";
+        if (renderer) renderer.domElement.style.display = "none";
     };
-
     if (session) {
         session.end().then(returnHome).catch(returnHome);
     } else {
@@ -208,8 +204,6 @@ if (backButton) {
 // ------------------------------------------------------------
 
 function onSelectStart() {
-    // Only rotate if a model is already placed - otherwise this tap is
-    // the initial placement tap and 'select' below handles it.
     if (!placedModel) return;
     isDraggingRotate = true;
     lastPointerX = null;
@@ -317,6 +311,7 @@ function init() {
         }
     });
 
+    arButtonEl = arButton;
     arButton.style.pointerEvents = "auto";
     arButton.style.zIndex = "10000";
     document.body.appendChild(arButton);
@@ -411,6 +406,15 @@ function init() {
     controller.addEventListener("selectstart", onSelectStart);
     controller.addEventListener("selectend", onSelectEnd);
 
+    renderer.xr.addEventListener("sessionstart", () => {
+        const bg = document.getElementById("webxrTestBg");
+        if (bg) bg.style.display = "none";
+    });
+    renderer.xr.addEventListener("sessionend", () => {
+        const bg = document.getElementById("webxrTestBg");
+        if (bg) bg.style.display = "";
+    });
+
     window.addEventListener("resize", onWindowResize);
 
     renderer.setAnimationLoop(render);
@@ -472,4 +476,7 @@ function render(timestamp, frame) {
 window.initMarkerlessWebXRTest = function () {
     checkWebXR();
     init();
+
+    if (arButtonEl) arButtonEl.style.display = "";
+    if (renderer) renderer.domElement.style.display = "";
 };
