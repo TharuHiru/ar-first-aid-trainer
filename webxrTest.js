@@ -66,31 +66,23 @@ let placeRequested = false;
 // ------------------------------------------------------------
 let audioListener = null;
 let patientAudio = null;
-let heartbeatBuffer = null;
-let groanBuffer = null;
-let correctChimeBuffer = null;
+let correctBuffer = null;
+let wrongBuffer = null;
 const audioLoader = new THREE.AudioLoader();
 
 function preloadAudio() {
-    audioLoader.load("assets/audio/heartbeat.mp3", (b) => { heartbeatBuffer = b; }, undefined,
-        (e) => console.error("Failed to load heartbeat.mp3:", e));
-    audioLoader.load("assets/audio/groan.mp3", (b) => { groanBuffer = b; }, undefined,
-        (e) => console.error("Failed to load groan.mp3:", e));
-    audioLoader.load("assets/audio/correct_chime.mp3", (b) => { correctChimeBuffer = b; }, undefined,
-        (e) => console.error("Failed to load correct_chime.mp3:", e));
+    audioLoader.load("assets/sounds/correct.wav", (b) => { correctBuffer = b; }, undefined,
+        (e) => console.error("Failed to load correct.wav:", e));
+    audioLoader.load("assets/sounds/wrong.wav", (b) => { wrongBuffer = b; }, undefined,
+        (e) => console.error("Failed to load wrong.wav:", e));
 }
 
 function setupPatientAudio() {
     if (!placedModel || !audioListener) return;
     patientAudio = new THREE.PositionalAudio(audioListener);
     patientAudio.setRefDistance(0.5);
-    patientAudio.setLoop(true);
+    patientAudio.setLoop(false);
     placedModel.add(patientAudio);
-    if (heartbeatBuffer) {
-        patientAudio.setBuffer(heartbeatBuffer);
-        patientAudio.setVolume(0.4);
-        patientAudio.play();
-    }
 }
 
 function playOneShot(buffer, volume = 0.7) {
@@ -100,14 +92,6 @@ function playOneShot(buffer, volume = 0.7) {
     patientAudio.setBuffer(buffer);
     patientAudio.setVolume(volume);
     patientAudio.play();
-    patientAudio.onEnded = () => {
-        if (heartbeatBuffer && trainingActive) {
-            patientAudio.setLoop(true);
-            patientAudio.setBuffer(heartbeatBuffer);
-            patientAudio.setVolume(0.4);
-            patientAudio.play();
-        }
-    };
 }
 
 // ------------------------------------------------------------
@@ -380,7 +364,7 @@ function checkAnswer() {
         kitFeedback.className = "kit-feedback correct";
         kitFeedback.style.display = "block";
 
-        playOneShot(correctChimeBuffer, 0.6);
+        playOneShot(correctBuffer, 0.8);
         triggerHealEffect();
         clearSelections();
 
@@ -395,7 +379,7 @@ function checkAnswer() {
         kitFeedback.className = "kit-feedback wrong";
         kitFeedback.style.display = "block";
 
-        playOneShot(groanBuffer, 0.8);
+        playOneShot(wrongBuffer, 0.8);
         triggerShakeEffect();
         clearSelections();
 
@@ -559,7 +543,7 @@ function placeModelAtMatrix(matrix) {
     xrCamera.getWorldPosition(camPos);
     const facingAngle = Math.atan2(camPos.x - modelWorldPos.x, camPos.z - modelWorldPos.z);
 
-    show("Doctor placed!<br>Tap the correct item(s), then tap the doctor (or Submit) to check.");
+    show("Tap the correct item(s), then click on submit");
     startTraining(modelWorldPos, facingAngle);
 }
 
