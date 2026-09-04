@@ -146,36 +146,46 @@ scene.addEventListener('loaded', function () {
     const floorEntity = document.getElementById('arFloor');
     if (!floorEntity) return;
 
-    const size = 512;
+    // Match the plane's aspect ratio (width 0.9 / height 0.7 on the entity)
+    const canvasW = 640;
+    const canvasH = 500;
 
     // Floor color/pattern (simple tile grid)
     const canvas = document.createElement('canvas');
-    canvas.width = size;
-    canvas.height = size;
+    canvas.width = canvasW;
+    canvas.height = canvasH;
     const ctx = canvas.getContext('2d');
     ctx.fillStyle = '#c9b89a';
-    ctx.fillRect(0, 0, size, size);
+    ctx.fillRect(0, 0, canvasW, canvasH);
     ctx.strokeStyle = 'rgba(120, 100, 70, 0.35)';
     ctx.lineWidth = 2;
-    const tiles = 8;
-    for (let i = 0; i <= tiles; i++) {
-        const p = (i / tiles) * size;
-        ctx.beginPath(); ctx.moveTo(p, 0); ctx.lineTo(p, size); ctx.stroke();
-        ctx.beginPath(); ctx.moveTo(0, p); ctx.lineTo(size, p); ctx.stroke();
+    const tilesX = 9;
+    const tilesY = 7;
+    for (let i = 0; i <= tilesX; i++) {
+        const p = (i / tilesX) * canvasW;
+        ctx.beginPath(); ctx.moveTo(p, 0); ctx.lineTo(p, canvasH); ctx.stroke();
+    }
+    for (let j = 0; j <= tilesY; j++) {
+        const p = (j / tilesY) * canvasH;
+        ctx.beginPath(); ctx.moveTo(0, p); ctx.lineTo(canvasW, p); ctx.stroke();
     }
 
     // Radial fade to transparent at the edges, so it blends into the
-    // camera feed instead of showing a hard-edged disc
+    // camera feed instead of showing a hard-edged rectangle
     const alphaCanvas = document.createElement('canvas');
-    alphaCanvas.width = size;
-    alphaCanvas.height = size;
+    alphaCanvas.width = canvasW;
+    alphaCanvas.height = canvasH;
     const actx = alphaCanvas.getContext('2d');
-    const gradient = actx.createRadialGradient(size/2, size/2, size*0.15, size/2, size/2, size*0.5);
+    const maxDim = Math.max(canvasW, canvasH);
+    const gradient = actx.createRadialGradient(
+        canvasW / 2, canvasH / 2, maxDim * 0.12,
+        canvasW / 2, canvasH / 2, maxDim * 0.62
+    );
     gradient.addColorStop(0, 'rgba(255,255,255,1)');
     gradient.addColorStop(0.7, 'rgba(255,255,255,0.55)');
     gradient.addColorStop(1, 'rgba(255,255,255,0)');
     actx.fillStyle = gradient;
-    actx.fillRect(0, 0, size, size);
+    actx.fillRect(0, 0, canvasW, canvasH);
 
     const colorTexture = new THREE.CanvasTexture(canvas);
     const alphaTexture = new THREE.CanvasTexture(alphaCanvas);

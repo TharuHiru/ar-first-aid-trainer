@@ -232,10 +232,10 @@
             <!-- Podium that appears when training starts -->
              <a-entity
                 id="arFloor"
-                geometry="primitive: circle; radius: 0.5; segments: 64"
+                geometry="primitive: plane; width: 1.1; height: 0.7"
                 rotation="-90 0 0"
-                position="0.1 -0.33 0.15"
-                material="shader: flat; transparent: true; side: double"
+                position="-0 -0.33 0.15"
+                material="shader: standard; transparent: true; side: double; roughness: 1; metalness: 0"
                 shadow="receive: true">
             </a-entity>
             <a-entity
@@ -247,9 +247,11 @@
                 <a-box
                     id="podiumBase"
                     width="0.1"
-                    height="0.15"
-                    depth="0.3"
-                    material="color: #4CAF50; metalness: 0.3; roughness: 0.7">
+                    height="0.1"
+                    depth="0"
+                    position="0 0.02 0"
+                    material="color: #4CAF50; metalness: 0.3; roughness: 0.7"
+                    shadow="cast: true">
                 </a-box>
                 
                 <!-- Podium top surface (drop zone) -->
@@ -259,7 +261,7 @@
                     height="0.02"
                     position="0 0.08 0"
                     material="color: #45a049; emissive: #1a3a1a; metalness: 0.5"
-                    shadow="receive: true">
+                    shadow="cast: true; receive: true">
                 </a-cylinder>
 
             </a-entity>
