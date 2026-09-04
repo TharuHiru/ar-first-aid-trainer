@@ -412,7 +412,7 @@ function resetHuntState() {
 // ------------------------------------------------------------
 async function checkWebXR() {
     if (!navigator.xr) {
-        show("❌ WebXR NOT available in this browser<br>(try Chrome on Android with ARCore)");
+        show("WebXR NOT available in this browser<br>(try Chrome on Android with ARCore)");
         startButton.disabled = true;
         return;
     }
@@ -423,9 +423,9 @@ async function checkWebXR() {
             startButton.disabled = true;
             return;
         }
-        show("✅ immersive-ar supported. Tap Start AR.");
+        show("immersive-ar supported. Tap Start AR.");
     } catch (error) {
-        show("❌ WebXR check error<br>" + error.message);
+        show("WebXR check error<br>" + error.message);
     }
 }
 
