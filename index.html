@@ -108,9 +108,31 @@
 
     <div id="guideMessage" style="display: none;"></div>
 
-    <button id="instructionButton" >
-        Apply item
-    </button>
+    <!-- Item Instruction Card Modal -->
+    <div id="instructionCard" class="instruction-card" style="display: none;">
+        <div class="instruction-card-backdrop"></div>
+        <div class="instruction-card-container">
+            <button id="closeInstructionCard" class="instruction-close-btn" aria-label="Close">✕</button>
+            
+            <div class="instruction-card-header">
+                <div class="instruction-emoji" id="instructionEmoji">🩹</div>
+                <h2 id="instructionTitle" class="instruction-title">Band-Aid</h2>
+            </div>
+            
+            <div class="instruction-card-body">
+                <p id="instructionText" class="instruction-text">
+                    We use a Band-Aid to cover a small cut and keep it safe.
+                </p>
+                <div class="instruction-fun-fact">
+                    <span id="instructionFunFact" class="fun-text">Did you know? Band-aids help keep cuts clean and prevent infection!</span>
+                </div>
+            </div>
+            
+            <div class="instruction-card-footer">
+                <button id="confirmInstructionBtn" class="instruction-confirm-btn">Got it!</button>
+            </div>
+        </div>
+    </div>
 
     <!-- Marker-based Scene -->
     <a-scene
@@ -238,6 +260,32 @@
                 material="shader: standard; transparent: true; side: double; roughness: 1; metalness: 0"
                 shadow="receive: true">
             </a-entity>
+
+            <!-- 3D Text Label for item info -->
+            <a-entity
+                id="arTextLabel"
+                position="0 0.15 0"
+                visible="false">
+                
+                <!-- Background glow sphere behind text -->
+                <a-sphere
+                    radius="0.12"
+                    position="0 0 -0.05"
+                    material="color: #4FA3F7; emissive: #2DD4BF; transparency: true; opacity: 0.3; wireframe: false"
+                    animation="property: scale; from: 1 1 1; to: 1.2 1.2 1.2; dir: alternate; loop: true; dur: 1200; easing: easeInOutSine">
+                </a-sphere>
+                
+                <!-- Text itself -->
+                <a-entity
+                    id="textContent"
+                    text="value: Great Job!; align: center; anchor: center; width: 1; color: #FFFFFF; wrapCount: 20; font: roboto; fontSize: 80;"
+                    position="0 0 0"
+                    scale="0.008 0.008 0.008"
+                    animation="property: scale; from: 0.005 0.005 0.005; to: 0.01 0.01 0.01; dur: 400; easing: easeOutBack">
+                </a-entity>
+                
+            </a-entity>
+            
             <a-entity
                 id="podium"
                 position="-0.1 -0.3 0.2"

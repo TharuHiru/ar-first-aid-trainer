@@ -113,6 +113,36 @@ const itemInstructions = {
     thermometer: "We use a thermometer to check if our body has a fever."
 };
 
+// Map items to emojis for visual display
+const itemEmojis = {
+    bandAid: "🩹",
+    bandageRoll: "🎗️",
+    painBalm: "🧴",
+    paracetamol: "💊",
+    sprit: "🧪",
+    thermometer: "🌡️"
+};
+
+// Item names in friendly format
+const itemNames = {
+    bandAid: "Band-Aid",
+    bandageRoll: "Bandage Roll",
+    painBalm: "Pain Balm",
+    paracetamol: "Paracetamol",
+    sprit: "Antiseptic Spirit",
+    thermometer: "Thermometer"
+};
+
+// Fun facts about each item
+const itemFunFacts = {
+    bandAid: "Did you know? Band-aids help keep cuts clean and prevent infection!",
+    bandageRoll: "Bandages are used by doctors and nurses in hospitals all around the world!",
+    painBalm: "Pain balms contain natural ingredients that help reduce aches and pains!",
+    paracetamol: "Paracetamol is one of the safest medicines and has helped millions of people!",
+    sprit: "Antiseptic spirit kills harmful germs and keeps wounds safe from infection!",
+    thermometer: "Modern thermometers can check your temperature in just a few seconds!"
+};
+
 // Define custom podium positions for each item 
 const itemPodiumPositions = {
     bandAid: { x: 0, y: 0.09, z: 0.01 },
@@ -233,6 +263,28 @@ startButton.addEventListener('click', function () {
     showGuideMessage('Drag and drop an item onto the podium to view its usage.');
 });
 
+// Instruction Card - Close button
+const closeInstructionCardBtn = document.getElementById('closeInstructionCard');
+if (closeInstructionCardBtn) {
+    closeInstructionCardBtn.addEventListener('click', hideInstructionCard);
+}
+
+// Instruction Card - Confirm button
+const confirmInstructionBtn = document.getElementById('confirmInstructionBtn');
+if (confirmInstructionBtn) {
+    confirmInstructionBtn.addEventListener('click', hideInstructionCard);
+}
+
+// Close card when clicking backdrop
+const instructionCard = document.getElementById('instructionCard');
+if (instructionCard) {
+    instructionCard.addEventListener('click', function(e) {
+        if (e.target === instructionCard) {
+            hideInstructionCard();
+        }
+    });
+}
+
 
 function setArStatus(text, show) {
     if (show === undefined) show = true;
@@ -297,11 +349,57 @@ function returnToMarkerScene() {
 function showGuideMessage(text) {
     guideMessage.textContent = text;
     guideMessage.style.display = 'block';
+    guideMessage.classList.add('glow-effect');
 
     // restart the CSS animation by forcing a reflow
     guideMessage.style.animation = 'none';
     void guideMessage.offsetWidth; // force reflow
-    guideMessage.style.animation = 'guideMessagePop 0.4s ease-out';
+    guideMessage.style.animation = 'guideMessagePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
+    
+    // Play success sound
+    if (window.pickupSound) {
+        playSound(pickupSound);
+    }
+    
+    // Show 3D text label in AR scene
+    showAR3DText(text);
+    
+    // Auto-hide after 5 seconds
+    setTimeout(() => {
+        guideMessage.classList.remove('glow-effect');
+        guideMessage.style.opacity = '0';
+        guideMessage.style.transition = 'opacity 0.3s ease-out';
+        setTimeout(() => {
+            guideMessage.style.display = 'none';
+            guideMessage.style.opacity = '1';
+            guideMessage.style.transition = 'none';
+        }, 300);
+    }, 5000);
+}
+
+function showInstructionCard(itemName) {
+    const instructionCard = document.getElementById('instructionCard');
+    const instructionEmoji = document.getElementById('instructionEmoji');
+    const instructionTitle = document.getElementById('instructionTitle');
+    const instructionText = document.getElementById('instructionText');
+    const instructionFunFact = document.getElementById('instructionFunFact');
+    
+    // Set content
+    instructionEmoji.textContent = itemEmojis[itemName] || '🩹';
+    instructionTitle.textContent = itemNames[itemName] || 'Item';
+    instructionText.textContent = itemInstructions[itemName] || 'Learn about this item!';
+    instructionFunFact.textContent = itemFunFacts[itemName] || 'Interesting facts coming soon!';
+    
+    // Play sound
+    playSound(pickupSound);
+    
+    // Show card
+    instructionCard.style.display = 'flex';
+}
+
+function hideInstructionCard() {
+    const instructionCard = document.getElementById('instructionCard');
+    instructionCard.style.display = 'none';
 }
 
 // Register draggable component - adapted from working fire extinguisher code
@@ -447,8 +545,7 @@ AFRAME.registerComponent('draggable-object', {
             
             // Show instruction button with item-specific text
             const instruction = itemInstructions[this.itemName] || "Apply item";
-            instructionButton.textContent = instruction;
-            instructionButton.style.display = 'block';
+            showInstructionCard(this.itemName);
             podium.querySelector('#podiumTop').setAttribute('material', 'emissive: #90EE90');
             
             // Stage 2: guide the user to try another item, the first time only
@@ -464,10 +561,10 @@ AFRAME.registerComponent('draggable-object', {
                 this.el.setAttribute('position', originalPos);
             }
             
-            // If this was the item on podium, hide the button
+            // If this was the item on podium, hide the card
             if (window.itemOnPodium === this.itemName) {
                 window.itemOnPodium = null;
-                instructionButton.style.display = 'none';
+                hideInstructionCard();
             }
             podium.querySelector('#podiumTop').setAttribute('material', 'emissive: #1a3a1a');
 
