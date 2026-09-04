@@ -668,7 +668,7 @@ button[aria-label="Enter AR"] {
 /* ---- Speech bubble the first-aid box "talks" through ---- */
 .kit-speech-bubble {
     position: fixed;
-    top: 12%;
+    top: 6%;
     left: 50%;
     transform: translateX(-50%);
     width: min(80vw, 320px);

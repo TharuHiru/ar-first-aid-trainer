@@ -543,7 +543,6 @@ function placeModelAtMatrix(matrix) {
     xrCamera.getWorldPosition(camPos);
     const facingAngle = Math.atan2(camPos.x - modelWorldPos.x, camPos.z - modelWorldPos.z);
 
-    show("Tap the correct item(s), then click on submit");
     startTraining(modelWorldPos, facingAngle);
 }
 
