@@ -342,6 +342,7 @@ function startTraining(centerPos, facingAngle) {
 
 function askQuestion() {
     kitFeedback.style.display = "none";
+    statusEl.style.display = "none";
     const question = scenarioQuestions[currentQuestion];
     kitSpeechText.textContent = question.prompt;
     kitSpeechBubble.style.display = "block";

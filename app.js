@@ -50,6 +50,24 @@ markerlessModeBtn.addEventListener('click', function () {
     }
 });
 
+// Credits Modal Functionality
+const creditsButton = document.getElementById('creditsButton');
+const creditsModal = document.getElementById('creditsModal');
+const closeCreditsButton = document.getElementById('closeCreditsButton');
+const creditsBackdrop = document.querySelector('.credits-backdrop');
+
+creditsButton.addEventListener('click', function () {
+    creditsModal.style.display = 'flex';
+});
+
+closeCreditsButton.addEventListener('click', function () {
+    creditsModal.style.display = 'none';
+});
+
+creditsBackdrop.addEventListener('click', function () {
+    creditsModal.style.display = 'none';
+});
+
 if (camBackButton) {
     camBackButton.addEventListener('click', function () {
         const mindarSystem = markerScene.systems && markerScene.systems['mindar-image-system'];
