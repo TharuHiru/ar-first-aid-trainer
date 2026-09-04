@@ -78,9 +78,17 @@ if (camBackButton) {
         markerScene.style.display = 'none';
         camBackButton.style.display = 'none';
         startButton.style.display = 'none';
-        instructionButton.style.display = 'none';
         guideMessage.style.display = 'none';
+        hideInstructionCard();
         podium.setAttribute('visible', 'false');
+
+        Object.keys(originalPositions).forEach(itemName => {
+            const itemElement = document.getElementById(itemName + 'Object');
+            if (itemElement) {
+                const originalPos = originalPositions[itemName];
+                itemElement.setAttribute('position', originalPos);
+            }
+        });
 
         // Reset training state so re-entering starts fresh
         window.trainingStarted = false;
