@@ -26,11 +26,11 @@ const ITEM_BOB_SPEED = 0.0022;
 const ITEM_BOB_HEIGHT = 0.012;
 
 const ITEM_DEFS = {
-    bandAid: { path: "assets/models/band_aid_box.glb", emoji: "🩹", label: "Band-Aid", scale: 0.025, rotation: { x: 0, y: 0, z: 0 } },
-    bandageRoll: { path: "assets/models/bandage_roll.glb", emoji: "🎗️", label: "Bandage Roll", scale: 0.025, rotation: { x: 0, y: Math.PI / 4, z: 0 }, shadowOffset: { x: 0, y: -0.005, z: 0 } },
-    painBalm: { path: "assets/models/pain_balm.glb", emoji: "🧴", label: "Pain Balm", scale: 0.025, rotation: { x: 0, y: 0, z: 0 } },
-    paracetamol: { path: "assets/models/paracetamol.glb", emoji: "💊", label: "Paracetamol", scale: 0.025, rotation: { x: 0, y: Math.PI / 6, z: 0 }, shadowOffset: { x: 0, y: -0.008, z: 0 } },
-    sprit: { path: "assets/models/sprit.glb", emoji: "🧪", label: "Antiseptic Spirit", scale: 0.025, rotation: { x: 0, y: 0, z: 0 }, shadowOffset: { x: 0, y: -0.01, z: 0 } }
+    bandAid: { path: "assets/models/band_aid_box.glb", emoji: "🩹", label: "Band-Aid", scale: 0.015, rotation: { x: 0, y: 0, z: 0 } },
+    bandageRoll: { path: "assets/models/bandage_roll.glb", emoji: "🎗️", label: "Bandage Roll", scale: 0.035, rotation: { x: 0, y: Math.PI / 4, z: 0 }, shadowOffset: { x: 0, y: -0.005, z: 0 } },
+    painBalm: { path: "assets/models/pain_balm.glb", emoji: "🧴", label: "Pain Balm", scale: 0.015, rotation: { x: 0, y: 0, z: 0 } },
+    paracetamol: { path: "assets/models/paracetamol.glb", emoji: "💊", label: "Paracetamol", scale: 0.035, rotation: { x: 0, y: Math.PI / 6, z: 0 }, shadowOffset: { x: 0, y: -0.008, z: 0 } },
+    sprit: { path: "assets/models/sprit.glb", emoji: "🧪", label: "Antiseptic Spirit", scale: 0.035, rotation: { x: 0, y: 0, z: 0 }, shadowOffset: { x: 0, y: -0.01, z: 0 } }
 };
 
 const scenarioQuestions = [
