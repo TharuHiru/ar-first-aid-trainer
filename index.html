@@ -374,19 +374,8 @@
     </a-scene>
 
     <!-- ============================================================ -->
-    <!-- Markerless (WebXR hit-test) AR Scene - used ONLY for the in-training
-         "Scenario" button above. Completely separate from markerScene above
-         so the marker-based experience is never touched by this. Hidden
-         until Scenario is picked.
-
-         ar-hit-test targets #reticle: A-Frame automatically moves/shows/hides
-         #reticle every frame to track wherever the device's camera is
-         currently detecting a real-world surface. When the user taps the
-         screen while a surface is detected, the scene fires
-         'ar-hit-test-select' - that's when we actually drop #placedModel
-         (a plain box, kept simple on purpose so you can quickly tell
-         whether hit-test itself works on a given phone). -->
-    <!-- ============================================================ -->
+    <!-- Markerless AR Scene
+        ============================================================ -->
     <a-scene
         id="markerlessScene"
         style="display: none;"
@@ -402,23 +391,15 @@
             </a-asset-item>
         </a-assets>
 
-        <!-- look-controls left ENABLED here (unlike the marker scene) on purpose:
-             - during a real WebXR AR session A-Frame ignores it and uses the device's
-               true pose instead, so it's harmless there.
-             - when there's no WebXR session (the AR-lite fallback below), this is what
-               drives the "magic window" gyro-based look-around over the camera feed. -->
-        <a-camera
+       <a-camera
             position="0 0 0"
             look-controls="enabled: true">
         </a-camera>
 
-        <!-- Add lighting so models are visible -->
         <a-light type="ambient" color="#ffffff" intensity="1.5"></a-light>
         <a-light type="directional" color="#ffffff" intensity="1" position="5 5 5"></a-light>
 
-        <!-- Reticle - a flat ring that ar-hit-test moves onto whatever real
-             surface the camera is currently detecting. Visible only while a
-             surface is actively found; disappears once something is placed. -->
+  
         <a-entity
             id="reticle"
             geometry="primitive: ring; radiusInner: 0.05; radiusOuter: 0.07; segmentsTheta: 32"
@@ -427,7 +408,6 @@
             visible="false">
         </a-entity>
 
-        <!-- Placed model - the doctor model that appears when user taps -->
         <a-entity
             id="placedModel"
             gltf-model="#doctorModel"
@@ -466,23 +446,17 @@
         <div id="webxrTestStatus">Checking WebXR...</div>
         <button id="webxrTestStart">Start AR</button>
 
-        <!-- Back button on the markerless WebXR test camera view
-             (top-right corner). Returns to the mode selector. -->
+       
         <button id="webxrBackButton" class="cam-back-button" aria-label="Back to mode selection" type="button">
             <span aria-hidden="true"></span> Back
         </button>
 
-        <!-- The first-aid box "talks" through this speech-bubble cloud. -->
         <div id="kitSpeechBubble" class="kit-speech-bubble" style="display: none;">
             <p id="kitSpeechText"></p>
         </div>
 
-        <!-- Correct / wrong feedback for the current question. -->
         <div id="kitFeedback" class="kit-feedback" style="display: none;"></div>
 
-        <!-- The six pieces of first-aid equipment. Kept away from the
-             speech bubble (bottom of the screen) so both are readable
-             at the same time. -->
         <div id="equipmentPanel" class="equipment-panel" style="display: none;">
             <button class="equipment-btn" data-item="bandAid">🩹 Band-Aid</button>
             <button class="equipment-btn" data-item="bandageRoll">🎗️ Bandage Roll</button>
@@ -497,9 +471,6 @@
     <script src="app.js"></script>
     <script type="module" src="webxrTest.js"></script>
 
-    <!-- Wires the new "Back" button on the marker-instructions screen.
-         Kept separate from app.js on purpose so it doesn't touch any
-         existing logic there - it just toggles the two screens back. -->
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             var backBtn = document.getElementById('backToModeSelectorButton');

@@ -176,11 +176,9 @@ scene.addEventListener('loaded', function () {
     const floorEntity = document.getElementById('arFloor');
     if (!floorEntity) return;
 
-    // Match the plane's aspect ratio (width 0.9 / height 0.7 on the entity)
     const canvasW = 640;
     const canvasH = 500;
 
-    // Floor color/pattern (simple tile grid)
     const canvas = document.createElement('canvas');
     canvas.width = canvasW;
     canvas.height = canvasH;
@@ -200,8 +198,6 @@ scene.addEventListener('loaded', function () {
         ctx.beginPath(); ctx.moveTo(0, p); ctx.lineTo(canvasW, p); ctx.stroke();
     }
 
-    // Radial fade to transparent at the edges, so it blends into the
-    // camera feed instead of showing a hard-edged rectangle
     const alphaCanvas = document.createElement('canvas');
     alphaCanvas.width = canvasW;
     alphaCanvas.height = canvasH;
@@ -238,7 +234,7 @@ scene.addEventListener('loaded', function () {
 
 function playSound(audioEl) {
     const instance = audioEl.cloneNode();
-    instance.play().catch(() => {}); // ignore autoplay-block errors
+    instance.play().catch(() => {}); 
 }
 
 scene.addEventListener('targetFound', function () {
@@ -284,7 +280,6 @@ if (instructionCard) {
         }
     });
 }
-
 
 function setArStatus(text, show) {
     if (show === undefined) show = true;
@@ -351,9 +346,8 @@ function showGuideMessage(text) {
     guideMessage.style.display = 'block';
     guideMessage.classList.add('glow-effect');
 
-    // restart the CSS animation by forcing a reflow
     guideMessage.style.animation = 'none';
-    void guideMessage.offsetWidth; // force reflow
+    void guideMessage.offsetWidth; 
     guideMessage.style.animation = 'guideMessagePop 0.5s cubic-bezier(0.34, 1.56, 0.64, 1)';
     
     // Play success sound
@@ -510,7 +504,6 @@ AFRAME.registerComponent('draggable-object', {
     },
     
     snapToExactPosition(itemName, position) {
-        // Snap item to exact position with no variation
         this.el.setAttribute('position', {
             x: position.x,
             y: position.y,
@@ -568,7 +561,7 @@ AFRAME.registerComponent('draggable-object', {
             }
             podium.querySelector('#podiumTop').setAttribute('material', 'emissive: #1a3a1a');
 
-            // Stage 3: after the first item is taken off the podium, show final encouragement
+            // after the first item is taken off the podium, show final encouragement
             if (window.guideStage === 1) {
                 window.guideStage = 2;
                 showGuideMessage('Well done! Try exploring the other items too.');
