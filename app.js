@@ -196,7 +196,9 @@ window.viewItemsMode = false;
 
 // Sound effects for picking up / placing items
 const pickupSound = new Audio('assets/sounds/pickup.wav');
+pickupSound.volume = 1.0;
 const placeSound = new Audio('assets/sounds/place.wav');
+placeSound.volume = 1.0;
 
 scene.addEventListener('loaded', function () {
     const floorEntity = document.getElementById('arFloor');
@@ -260,6 +262,7 @@ scene.addEventListener('loaded', function () {
 
 function playSound(audioEl) {
     const instance = audioEl.cloneNode();
+    instance.volume = 1.0; // Ensure maximum volume on all cloned instances
     instance.play().catch(() => {}); 
 }
 
@@ -283,6 +286,10 @@ startButton.addEventListener('click', function () {
 
     // guide the user to drag an item onto the podium
     showGuideMessage('Drag and drop an item onto the podium to view its usage.');
+    
+    // Log detailed draw call info when training starts
+    console.log('\n=== TRAINING SESSION STARTED ===');
+    analyzeDrawCalls();
 });
 
 // Instruction Card - Close button
@@ -421,6 +428,97 @@ function hideInstructionCard() {
     const instructionCard = document.getElementById('instructionCard');
     instructionCard.style.display = 'none';
 }
+
+// ============== DETAILED DRAW CALL ANALYSIS ==============
+// Call this function from browser console: window.getDetailedDrawCallInfo()
+window.getDetailedDrawCallInfo = function() {
+    const renderer = scene.renderer;
+    const info = renderer.info;
+    
+    console.clear();
+    console.log('%c=== DETAILED DRAW CALL ANALYSIS ===', 'color: #4CAF50; font-size: 16px; font-weight: bold;');
+    
+    console.log('\n%cGLOBAL RENDER STATISTICS:', 'color: #2196F3; font-weight: bold;');
+    console.log(`  Render Calls: %c${info.render.calls}`, 'color: #FF9800; font-weight: bold;');
+    console.log(`  Triangles: %c${info.render.triangles}`, 'color: #FF9800;');
+    console.log(`  Points: %c${info.render.points}`, 'color: #FF9800;');
+    console.log(`  Lines: %c${info.render.lines}`, 'color: #FF9800;');
+    
+    console.log('\n%cMEMORY STATISTICS:', 'color: #2196F3; font-weight: bold;');
+    console.log(`  Active Geometries: %c${info.memory.geometries}`, 'color: #4CAF50;');
+    console.log(`  Active Textures: %c${info.memory.textures}`, 'color: #4CAF50;');
+    console.log(`  Programs in Use: %c${info.programs ? info.programs.length : 'N/A'}`, 'color: #4CAF50;');
+    
+    console.log('\n%cPER-MODEL BREAKDOWN:', 'color: #2196F3; font-weight: bold;');
+    
+    const modelData = {
+        'bandAidObject': 'Band-Aid Box',
+        'bandageRollObject': 'Bandage Roll',
+        'painBalmObject': 'Pain Balm',
+        'paracetamolObject': 'Paracetamol',
+        'spritObject': 'Antiseptic Spirit',
+        'thermometerObject': 'Thermometer'
+    };
+    
+    let totalMeshes = 0;
+    let modelSummary = [];
+    
+    Object.entries(modelData).forEach(([modelId, modelName]) => {
+        const modelElement = document.getElementById(modelId);
+        if (modelElement) {
+            let meshCount = 0;
+            let triangleCount = 0;
+            
+            modelElement.object3D.traverse(function(child) {
+                if (child.isMesh) {
+                    meshCount++;
+                    if (child.geometry && child.geometry.index) {
+                        triangleCount += child.geometry.index.count / 3;
+                    } else if (child.geometry && child.geometry.attributes.position) {
+                        triangleCount += child.geometry.attributes.position.count / 3;
+                    }
+                }
+            });
+            
+            totalMeshes += meshCount;
+            modelSummary.push({
+                name: modelName,
+                meshes: meshCount,
+                triangles: Math.round(triangleCount)
+            });
+            
+            console.log(`  %c${modelName}%c: ${meshCount} mesh(es), ~${Math.round(triangleCount)} triangles`, 
+                        'color: #FF6B6B; font-weight: bold;', 'color: #fff;');
+        }
+    });
+    
+    // Also count first aid box
+    const firstAidBox = document.querySelector('a-entity[gltf-model="#firstAidBox"]');
+    if (firstAidBox) {
+        let meshCount = 0;
+        firstAidBox.object3D.traverse(function(child) {
+            if (child.isMesh) meshCount++;
+        });
+        totalMeshes += meshCount;
+        console.log(`  %cFirst Aid Box%c: ${meshCount} mesh(es)`, 
+                    'color: #FF6B6B; font-weight: bold;', 'color: #fff;');
+    }
+    
+    console.log('\n%cSUMMARY:', 'color: #2196F3; font-weight: bold;');
+    console.log(`  Total Meshes (= Draw Calls): %c${totalMeshes}`, 'color: #FFD700; font-size: 14px; font-weight: bold;');
+    console.log(`  Estimated Total Triangles: %c${modelSummary.reduce((sum, m) => sum + m.triangles, 0)}`, 'color: #FFD700; font-size: 14px; font-weight: bold;');
+    
+    console.log('\n%cNote: Each mesh typically equals 1 draw call. Add +1 for shadows if enabled.', 'color: #9C27B0; font-style: italic;');
+    
+    return {
+        totalDrawCalls: totalMeshes,
+        models: modelSummary,
+        rendererStats: {
+            calls: info.render.calls,
+            triangles: info.render.triangles
+        }
+    };
+};
 
 // Register draggable component - adapted from working fire extinguisher code
 AFRAME.registerComponent('draggable-object', {
